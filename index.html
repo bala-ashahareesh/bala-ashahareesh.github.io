@@ -1,3 +1,10 @@
+Here is the updated code with those specific paragraphs moved to sit exactly between the two examples. 
+
+This creates a great narrative flow: You show the ideal case (Example A), then explain the mathematical ideal (associativity and one-hot selection) and the problem with it (noise/affine), and *then* you show the reality of the problem with concrete numbers (Example B), followed by the graph.
+
+Copy and paste this into your `index.html`:
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -148,6 +155,12 @@
         <p>We retrieve perfectly clean Sci-Fi, with absolutely zero noise from Book 2. Superposition is powerful if we can keep the keys orthogonal.</p>
     </div>
 
+    <p>This gives us a beautiful associativity in the memory update.</p>
+
+    <p>If we retrieve from our memory state \(M\) using query \(q\), we get \(M q = \sum v_i (k_i^T q) = \sum v_i \cdot \text{score}_i\). Ideally, we want our scoring mechanism to behave as a selector: the desired value should have a weight of \(1\), and all undesired values should have a weight of \(0\) (a one-hot vector).</p>
+
+    <p>Unfortunately, the ensuing issue here is that even if the score is high for the desired value, the sum of undesired scores can still make the result noisy. This can be seen if we view it as an affine equation.</p>
+
     <div class="example-box">
         <div class="example-title">Example B: The Reality (Crosstalk & Noise)</div>
         <p>In reality, thematic fingerprints overlap heavily. We cannot always keep the keys orthogonal. Let's use overlapping keys:</p>
@@ -161,12 +174,6 @@
         <p>Score for Book 2 (\(k_2\)): \(q^T k_2 = (1 \times 0.5) + (0.5 \times 1) = 1.0\)</p>
         <p>Because the scores are so close, the query "desires" Book 1 only slightly more than Book 2. When we retrieve \(M q = 1.25 v_1 + 1.0 v_2\), we get a heavy mixture of both genres. The retrieval is noisy.</p>
     </div>
-
-    <p>This gives us a beautiful associativity in the memory update.</p>
-
-    <p>If we retrieve from our memory state \(M\) using query \(q\), we get \(M q = \sum v_i (k_i^T q) = \sum v_i \cdot \text{score}_i\). Ideally, we want our scoring mechanism to behave as a selector: the desired value should have a weight of \(1\), and all undesired values should have a weight of \(0\) (a one-hot vector).</p>
-
-    <p>Unfortunately, the ensuing issue here is that even if the score is high for the desired value, the sum of undesired scores can still make the result noisy. This can be seen if we view it as an affine equation.</p>
 
     <div class="graph-container">
         <div class="example-title">The Affine Noise Problem</div>
@@ -206,3 +213,4 @@
 
 </body>
 </html>
+```
