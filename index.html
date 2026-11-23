@@ -82,7 +82,7 @@
             margin-bottom: 0.5em;
         }
 
-        /* Graph styling */
+        /* INTERACTIVE GRAPHICS CONTAINER */
         .graph-container {
             text-align: center;
             margin: 2em 0;
@@ -90,7 +90,49 @@
             padding: 1em;
             border: 1px solid #eaeaea;
             border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
         }
+
+        /* ANIMATION STYLES */
+        .matrix-animation {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin: 2em 0;
+            font-family: monospace;
+            font-size: 1.2em;
+        }
+        .matrix-bracket {
+            border-left: 2px solid #333;
+            border-right: 2px solid #333;
+            padding: 10px 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .matrix-row {
+            display: flex;
+            gap: 15px;
+        }
+        .matrix-cell {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f6f8fa;
+            border-radius: 4px;
+            transition: all 0.5s ease;
+            opacity: 0.3; /* Starts faded */
+        }
+        
+        /* The animation triggers */
+        .play-anim .matrix-cell.v-active { background-color: #d1e5fd; opacity: 1; }
+        .play-anim .matrix-cell.k-active { background-color: #fed1d1; opacity: 1; }
+        .play-anim .matrix-cell.m-active { background-color: #d1fdd1; opacity: 1; transform: scale(1.1); box-shadow: 0 0 10px rgba(0,255,0,0.2); }
+        
+        .anim-label { font-family: sans-serif; font-size: 0.8em; text-align: center; margin-top: 5px; color: #666; }
     </style>
 </head>
 <body>
@@ -190,41 +232,114 @@
         <p>Because the scores are so close, the query "desires" Book 1 only slightly more than Book 2. When we retrieve \(M q = 1.25 v_1 + 1.0 v_2\), we get a heavy mixture of both genres. The retrieval is noisy.</p>
     </div>
 
+    <!-- UPDATED AFFINE GRAPH -->
     <div class="graph-container">
         <div class="example-title">The Affine Noise Problem</div>
-        <p style="font-size: 0.9em; text-align: left;">
+        <p style="font-size: 0.9em; text-align: left; margin-bottom: 1.5em;">
             If the desired signal is \(x\), and our desired weight is \(m\), the ideal output is \(y = mx\). However, the sum of undesired scores introduces a constant bias \(c\). Thus, the actual output is an affine equation: <strong>\(y = mx + c\)</strong>.
         </p>
         
-        <!-- Custom SVG Graph -->
-        <svg width="100%" height="300" viewBox="0 0 600 300" style="max-width: 500px;">
-            <!-- Grid -->
-            <line x1="50" y1="250" x2="550" y2="250" stroke="#ccc" stroke-width="2" />
-            <line x1="50" y1="50" x2="50" y2="250" stroke="#ccc" stroke-width="2" />
+        <!-- Detailed SVG Graph based on Example B -->
+        <svg width="100%" height="350" viewBox="0 0 600 350" style="max-width: 550px;">
+            <defs>
+                <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#666" />
+                </marker>
+            </defs>
+
+            <!-- Grid lines -->
+            <line x1="60" y1="300" x2="550" y2="300" stroke="#ccc" stroke-width="2" marker-end="url(#arrow)" />
+            <line x1="60" y1="300" x2="60" y2="50" stroke="#ccc" stroke-width="2" marker-end="url(#arrow)" />
             
-            <!-- Axes Labels -->
-            <text x="550" y="270" font-family="sans-serif" font-size="12" fill="#666" text-anchor="end">Desired Score (x)</text>
-            <text x="30" y="50" font-family="sans-serif" font-size="12" fill="#666" transform="rotate(-90 30,50)">Output (y)</text>
+            <!-- Axis Labels -->
+            <text x="550" y="320" font-family="sans-serif" font-size="12" fill="#666" text-anchor="end">Retrieval Score for Book 1 (x)</text>
+            <text x="40" y="50" font-family="sans-serif" font-size="12" fill="#666" transform="rotate(-90 40,50)">Retrieved Sci-Fi Output (y)</text>
 
-            <!-- Ideal Line (y = x) -->
-            <line x1="50" y1="250" x2="250" y2="50" stroke="#0366d6" stroke-width="2" stroke-dasharray="5,5" />
-            <text x="260" y="60" font-family="sans-serif" font-size="12" fill="#0366d6">Ideal: y = mx</text>
+            <!-- Ideal Line (y = 0.8x) -->
+            <line x1="60" y1="300" x2="450" y2="35" stroke="#0366d6" stroke-width="2" stroke-dasharray="5,5" />
+            <text x="460" y="40" font-family="sans-serif" font-size="12" fill="#0366d6">Ideal: y = 0.8x</text>
 
-            <!-- Noisy Line (y = mx + c) -->
-            <line x1="50" y1="150" x2="450" y2="50" stroke="#d73a49" stroke-width="2" />
-            <text x="460" y="60" font-family="sans-serif" font-size="12" fill="#d73a49">Actual: y = mx + c</text>
+            <!-- Actual Line (y = 0.8x + 0.1) -->
+            <line x1="60" y1="265" x2="520" y2="32" stroke="#d73a49" stroke-width="2" />
+            <text x="460" y="20" font-family="sans-serif" font-size="12" fill="#d73a49">Actual: y = 0.8x + 0.1</text>
 
-            <!-- Bias Indicator -->
-            <line x1="50" y1="250" x2="50" y2="150" stroke="#d73a49" stroke-width="2" marker-end="url(#arrow)" />
-            <text x="60" y="200" font-family="sans-serif" font-size="12" fill="#d73a49">Noise Bias (c)</text>
+            <!-- Data Point for Book 1 Query (x=1.25) -->
+            <line x1="280" y1="300" x2="280" y2="100" stroke="#ccc" stroke-width="1" stroke-dasharray="2,2" />
+            <text x="280" y="320" font-family="sans-serif" font-size="12" fill="#666" text-anchor="middle">x = 1.25</text>
 
-            <!-- Point illustrating high score -->
-            <circle cx="250" cy="100" r="4" fill="#d73a49" />
-            <line x1="250" y1="250" x2="250" y2="100" stroke="#eaeaea" stroke-width="1" stroke-dasharray="2,2" />
-            <text x="250" y="260" font-family="sans-serif" font-size="12" fill="#666" text-anchor="middle">x = high</text>
-            <text x="210" y="95" font-family="sans-serif" font-size="12" fill="#d73a49">noisy result</text>
+            <!-- Ideal Point on Line (1.25, 1.0) -> mapped to y=100 -->
+            <circle cx="280" cy="122" r="5" fill="#0366d6" />
+            <text x="290" y="115" font-family="sans-serif" font-size="11" fill="#0366d6">Ideal Output (1.0)</text>
+
+            <!-- Actual Point on Line (1.25, 1.1) -> mapped to y=87.5 -->
+            <circle cx="280" cy="100" r="5" fill="#d73a49" />
+            <text x="290" y="90" font-family="sans-serif" font-size="11" fill="#d73a49">Actual Output (1.1)</text>
+
+            <!-- Bias Indicator (The difference is 0.1) -->
+            <line x1="280" y1="122" x2="280" y2="100" stroke="#d73a49" stroke-width="3" />
+            <text x="240" y="140" font-family="sans-serif" font-size="11" fill="#d73a49" text-anchor="end">Noise Bias (c)</text>
+            <text x="240" y="155" font-family="sans-serif" font-size="11" fill="#d73a49" text-anchor="end">from Book 2</text>
+
+            <!-- Origin Label -->
+            <text x="50" y="315" font-family="sans-serif" font-size="12" fill="#666">0</text>
         </svg>
     </div>
+
+    <!-- ANIMATED OUTER PRODUCT VISUALIZER -->
+    <div class="graph-container" style="margin-top: 3em;">
+        <div class="example-title">Interactive: Outer Product Accumulation</div>
+        <p style="font-size: 0.9em; text-align: center; margin-bottom: 1em;">Hover over the vectors to see how they distribute into the memory matrix.</p>
+        
+        <div class="matrix-animation" id="outer-product-demo">
+            <!-- V1 -->
+            <div>
+                <div class="matrix-bracket">
+                    <div class="matrix-row"><div class="matrix-cell v-active">0.8</div></div>
+                    <div class="matrix-row"><div class="matrix-cell">0.2</div></div>
+                </div>
+                <div class="anim-label">Value (\(v_1\))<br>Genres</div>
+            </div>
+            
+            <div style="font-size: 1.5em; color: #666;">&times;</div>
+            
+            <!-- K1^T -->
+            <div>
+                <div class="matrix-bracket" style="flex-direction: row; padding: 15px 10px;">
+                    <div class="matrix-cell k-active">1.0</div>
+                    <div class="matrix-cell">0.5</div>
+                </div>
+                <div class="anim-label">Key (\(k_1^T\))<br>Features</div>
+            </div>
+            
+            <div style="font-size: 1.5em; color: #666;">=</div>
+            
+            <!-- M1 -->
+            <div>
+                <div class="matrix-bracket">
+                    <div class="matrix-row">
+                        <div class="matrix-cell m-active">0.8</div>
+                        <div class="matrix-cell">0.4</div>
+                    </div>
+                    <div class="matrix-row">
+                        <div class="matrix-cell">0.2</div>
+                        <div class="matrix-cell">0.1</div>
+                    </div>
+                </div>
+                <div class="anim-label">Memory (\(M_1\))</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tiny script to trigger the animation loop -->
+    <script>
+        const demo = document.getElementById('outer-product-demo');
+        setInterval(() => {
+            demo.classList.add('play-anim');
+            setTimeout(() => {
+                demo.classList.remove('play-anim');
+            }, 2000);
+        }, 3000);
+    </script>
 
 </body>
 </html>
