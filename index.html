@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bala's Notes on NPU & AI Math</title>
+    <title>Kernel Optimisation for NPU</title>
     
     <!-- MathJax for rendering equations -->
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
     <style>
-        /* This is a clean, academic style */
+        /* Clean, academic style */
         body {
             font-family: Georgia, 'Times New Roman', Times, serif;
             line-height: 1.6;
             color: #333;
-            max-width: 800px; /* Keeps lines readable, like a paper */
+            max-width: 800px;
             margin: 0 auto;
             padding: 2rem 1rem;
             background-color: #fdfdfd;
@@ -27,9 +27,13 @@
             padding-bottom: 0.3em;
             margin-top: 1.5em;
         }
-        h1 { font-size: 2.2rem; }
+        h1 { font-size: 2.2rem; margin-bottom: 0.2em; }
+        h2 { font-size: 1.5rem; color: #444; }
+        .subtitle { font-style: italic; color: #666; margin-top: 0; margin-bottom: 2em; }
+        
         a { color: #0366d6; text-decoration: none; }
         a:hover { text-decoration: underline; }
+        
         code {
             font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
             background-color: #f6f8fa;
@@ -37,46 +41,133 @@
             border-radius: 3px;
             font-size: 85%;
         }
+        
+        /* Styling for math and examples */
         .math-block {
             background-color: #f6f8fa;
             padding: 1em;
             border-radius: 5px;
             overflow-x: auto;
             text-align: center;
+            margin: 1.5em 0;
+            border-left: 4px solid #0366d6;
+        }
+        .example-box {
+            border: 1px solid #e1e4e8;
+            padding: 1em;
+            border-radius: 5px;
+            background: #fff;
+            margin: 1.5em 0;
+        }
+        .example-title {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-weight: bold;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            color: #555;
+            margin-bottom: 0.5em;
+        }
+
+        /* Graph styling */
+        .graph-container {
+            text-align: center;
+            margin: 2em 0;
+            background: #fff;
+            padding: 1em;
+            border: 1px solid #eaeaea;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
 
-    <h1>Architecting the Future: NPUs & AI Math</h1>
-    <p>Welcome. I am an NPU architect exploring the intersection of hardware design, AI model architectures, and the underlying mathematics that make it all work.</p>
+    <h1>Kernel Optimisation for NPU</h1>
+    <p class="subtitle">Potential of Cauchy Schwartz Inequality as an enabler of Softmax Tiling</p>
 
-    <h2>Recent Thoughts</h2>
+    <h2>Rediscovering SoftMax as a Kernel Function</h2>
     
-    <h3>The Attention Mechanism</h3>
-    <p>At the heart of modern transformers lies the scaled dot-product attention. It can be expressed as:</p>
+    <p>When building intuition for understanding Attention mechanism, I like to start from the concept of considering the memory state as an outer product accumulate process where the keys act as an index that decides how the values being updated can be distributed among the columns.</p>
+
+    <!-- ADDED BY AI: Equations and Example for Outer Product Accumulate -->
+    <p>Mathematically, if we have a value vector \(v \in \mathbb{R}^m\) and a key vector \(k \in \mathbb{R}^n\), the memory update is an outer product \(v k^T\) (an \(m \times n\) matrix) accumulated into the memory state \(M\):</p>
     
     <div class="math-block">
         \[
-        \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V
+        M = \sum_{i=1}^{t} v_i k_i^T
         \]
     </div>
 
-    <p>Where \(Q\) is the query matrix, \(K\) is the key matrix, and \(V\) is the value matrix. The \(d_k\) term is the dimension of the keys, acting as a scaling factor to prevent the dot products from growing too large.</p>
+    <div class="example-box">
+        <div class="example-title">Example: Outer Product Accumulation</div>
+        <p>Suppose our value represents an output feature and our key acts as a spatial index. Let \(v_1 = \begin{bmatrix} 2 \\ 3 \end{bmatrix}\) and \(k_1 = \begin{bmatrix} 1 \\ 4 \end{bmatrix}\).</p>
+        <p>The outer product \(v_1 k_1^T\) distributes the value \(v_1\) across the columns according to the weights in \(k_1\):</p>
+        <div class="math-block" style="margin: 0.5em 0; padding: 0.5em; background: none; border: none;">
+            \[
+            M_1 = v_1 k_1^T = \begin{bmatrix} 2 \\ 3 \end{bmatrix} \begin{bmatrix} 1 & 4 \end{bmatrix} = \begin{bmatrix} 2 & 8 \\ 3 & 12 \end{bmatrix}
+            \]
+        </div>
+        <p>If we add a second update, say \(v_2 = \begin{bmatrix} 1 \\ 1 \end{bmatrix}\) and \(k_2 = \begin{bmatrix} 2 \\ 0 \end{bmatrix}\), the memory state accumulates:</p>
+        <div class="math-block" style="margin: 0.5em 0; padding: 0.5em; background: none; border: none;">
+            \[
+            M = M_1 + v_2 k_2^T = \begin{bmatrix} 2 & 8 \\ 3 & 12 \end{bmatrix} + \begin{bmatrix} 2 & 0 \\ 2 & 0 \end{bmatrix} = \begin{bmatrix} 4 & 8 \\ 5 & 12 \end{bmatrix}
+            \]
+        </div>
+    </div>
 
-    <h2>Hardware Implications</h2>
-    <p>When mapping this to an NPU, the matrix multiplication \(QK^T\) requires significant MAC (Multiply-Accumulate) throughput. For a standard block size, we might write a naive python simulation like this:</p>
+    <p>Any query then matches with the key via inner product to give a score that decides how desired a particular value is.</p>
 
-    <pre><code>def attention(q, k, v):
-    # Matmul Q * K^T
-    matmul_qk = np.dot(q, k.T) 
-    # Scale
-    scaled_attention_logits = matmul_qk / np.sqrt(k.shape[-1])
-    # Softmax
-    attention_weights = tf.nn.softmax(scaled_attention_logits, axis=-1)
-    # Matmul with V
-    output = np.dot(attention_weights, v)
-    return output</code></pre>
+    <!-- ADDED BY AI: Example of Query-Key matching -->
+    <div class="example-box">
+        <div class="example-title">Example: Query-Key Inner Product</div>
+        <p>Let a query vector be \(q = \begin{bmatrix} 1 \\ 0.5 \end{bmatrix}\). We calculate the score by taking the inner product with the keys.</p>
+        <p>Score with \(k_1\): \(q^T k_1 = (1 \times 1) + (0.5 \times 4) = 3.0\)</p>
+        <p>Score with \(k_2\): \(q^T k_2 = (1 \times 2) + (0.5 \times 0) = 2.0\)</p>
+        <p>Because the score with \(k_1\) is higher, the query "desires" \(v_1\) more than \(v_2\).</p>
+    </div>
+
+    <p>This gives us a beautiful associativity in the memory update.</p>
+
+    <!-- ADDED BY AI: Ideal one-hot behavior -->
+    <p>If we retrieve from our memory state \(M\) using query \(q\), we get \(M q = \sum v_i (k_i^T q) = \sum v_i \cdot \text{score}_i\). Ideally, we want our scoring mechanism to behave as a selector: the desired value should have a weight of \(1\), and all undesired values should have a weight of \(0\) (a one-hot vector).</p>
+
+    <p>Unfortunately, the ensuing issue here is that even if the score is high for the desired value, the sum of undesired scores can still make the result noisy. This can be seen if we view it as an affine equation.</p>
+
+    <!-- ADDED BY AI: Graph illustrating the affine equation noise -->
+    <div class="graph-container">
+        <div class="example-title">The Affine Noise Problem</div>
+        <p style="font-size: 0.9em; text-align: left;">
+            If the desired signal is \(x\), and our desired weight is \(m\), the ideal output is \(y = mx\). However, the sum of undesired scores introduces a constant bias \(c\). Thus, the actual output is an affine equation: <strong>\(y = mx + c\)</strong>.
+        </p>
+        
+        <!-- Custom SVG Graph -->
+        <svg width="100%" height="300" viewBox="0 0 600 300" style="max-width: 500px;">
+            <!-- Grid -->
+            <line x1="50" y1="250" x2="550" y2="250" stroke="#ccc" stroke-width="2" />
+            <line x1="50" y1="50" x2="50" y2="250" stroke="#ccc" stroke-width="2" />
+            
+            <!-- Axes Labels -->
+            <text x="550" y="270" font-family="sans-serif" font-size="12" fill="#666" text-anchor="end">Desired Score (x)</text>
+            <text x="30" y="50" font-family="sans-serif" font-size="12" fill="#666" transform="rotate(-90 30,50)">Output (y)</text>
+
+            <!-- Ideal Line (y = x) -->
+            <line x1="50" y1="250" x2="250" y2="50" stroke="#0366d6" stroke-width="2" stroke-dasharray="5,5" />
+            <text x="260" y="60" font-family="sans-serif" font-size="12" fill="#0366d6">Ideal: y = mx</text>
+
+            <!-- Noisy Line (y = mx + c) -->
+            <line x1="50" y1="150" x2="450" y2="50" stroke="#d73a49" stroke-width="2" />
+            <text x="460" y="60" font-family="sans-serif" font-size="12" fill="#d73a49">Actual: y = mx + c</text>
+
+            <!-- Bias Indicator -->
+            <line x1="50" y1="250" x2="50" y2="150" stroke="#d73a49" stroke-width="2" marker-end="url(#arrow)" />
+            <text x="60" y="200" font-family="sans-serif" font-size="12" fill="#d73a49">Noise Bias (c)</text>
+
+            <!-- Point illustrating high score -->
+            <circle cx="250" cy="100" r="4" fill="#d73a49" />
+            <line x1="250" y1="250" x2="250" y2="100" stroke="#eaeaea" stroke-width="1" stroke-dasharray="2,2" />
+            <text x="250" y="260" font-family="sans-serif" font-size="12" fill="#666" text-anchor="middle">x = high</text>
+            <text x="210" y="95" font-family="sans-serif" font-size="12" fill="#d73a49">noisy result</text>
+        </svg>
+    </div>
 
 </body>
 </html>
