@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kernel Optimisation for NPU</title>
-    
+
     <!-- MathJax for rendering equations -->
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
     <style>
@@ -30,8 +29,7 @@
         h1 { font-size: 2.2rem; margin-bottom: 0.2em; }
         h2 { font-size: 1.5rem; color: #444; }
         .subtitle { font-style: italic; color: #666; margin-top: 0; margin-bottom: 2em; }
-        
-        /* Intro specific styling */
+
         .intro-text {
             font-size: 1.1em;
             color: #2c3e50;
@@ -47,7 +45,7 @@
 
         a { color: #0366d6; text-decoration: none; }
         a:hover { text-decoration: underline; }
-        
+
         code {
             font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
             background-color: #f6f8fa;
@@ -55,8 +53,7 @@
             border-radius: 3px;
             font-size: 85%;
         }
-        
-        /* Styling for math and examples */
+
         .math-block {
             background-color: #f6f8fa;
             padding: 1em;
@@ -81,8 +78,6 @@
             color: #555;
             margin-bottom: 0.5em;
         }
-
-        /* INTERACTIVE GRAPHICS CONTAINER */
         .graph-container {
             text-align: center;
             margin: 2em 0;
@@ -93,46 +88,117 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.02);
         }
 
-        /* ANIMATION STYLES */
-        .matrix-animation {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
+        /* =========================================================
+           STEP-BY-STEP DEMOS
+           ========================================================= */
+        .demo {
+            border: 1px solid #e1e4e8;
+            border-radius: 8px;
+            background: #fff;
             margin: 2em 0;
-            font-family: monospace;
-            font-size: 1.2em;
+            padding: 1em 1em 0.8em;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
         }
-        .matrix-bracket {
-            border-left: 2px solid #333;
-            border-right: 2px solid #333;
-            padding: 10px 5px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+        .demo-title {
+            font-weight: bold; font-size: 0.85em; text-transform: uppercase;
+            color: #555; margin-bottom: 0.4em; letter-spacing: 0.02em;
         }
-        .matrix-row {
-            display: flex;
-            gap: 15px;
+        .demo-stage { overflow-x: auto; padding: 0.6em 0; }
+        .demo-caption {
+            min-height: 4.6em; font-size: 0.93em; line-height: 1.5; color: #2c3e50;
+            background: #f9fafb; border-radius: 6px; padding: 0.7em 0.9em; margin-top: 0.4em;
         }
-        .matrix-cell {
-            width: 50px;
-            height: 50px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #f6f8fa;
-            border-radius: 4px;
-            transition: all 0.5s ease;
-            opacity: 0.3; /* Starts faded */
+        .demo-controls {
+            display: flex; align-items: center; justify-content: center;
+            gap: 10px; margin-top: 0.8em; flex-wrap: wrap;
         }
-        
-        /* The animation triggers */
-        .play-anim .matrix-cell.v-active { background-color: #d1e5fd; opacity: 1; }
-        .play-anim .matrix-cell.k-active { background-color: #fed1d1; opacity: 1; }
-        .play-anim .matrix-cell.m-active { background-color: #d1fdd1; opacity: 1; transform: scale(1.1); box-shadow: 0 0 10px rgba(0,255,0,0.2); }
-        
-        .anim-label { font-family: sans-serif; font-size: 0.8em; text-align: center; margin-top: 5px; color: #666; }
+        .demo-controls button {
+            font: inherit; font-size: 0.85em; padding: 0.35em 0.9em; cursor: pointer;
+            border: 1px solid #d0d7de; background: #f6f8fa; color: #24292e; border-radius: 6px;
+        }
+        .demo-controls button:hover:not(:disabled) { background: #eaeef2; }
+        .demo-controls button:disabled { opacity: 0.4; cursor: default; }
+        .demo-controls button.primary { background: #0366d6; border-color: #0366d6; color: #fff; }
+        .demo-controls button.primary:hover:not(:disabled) { background: #0256b3; }
+        .dots { display: flex; gap: 7px; }
+        .dots span {
+            width: 10px; height: 10px; border-radius: 50%; background: #d0d7de;
+            cursor: pointer; transition: background .3s, transform .3s;
+        }
+        .dots span.on { background: #0366d6; transform: scale(1.25); }
+
+        /* matrix grid */
+        .mgrid { display: grid; gap: 6px; justify-content: center; align-items: center; font-size: 14px; }
+        .cell {
+            height: 44px; display: flex; align-items: center; justify-content: center;
+            border-radius: 6px; background: #f6f8fa; color: #24292e;
+            font-family: "SFMono-Regular", Consolas, Menlo, monospace; font-size: 15px;
+            transition: background .4s, opacity .4s, box-shadow .4s, color .4s;
+            box-sizing: border-box;
+        }
+        .cell.blank { background: none; }
+        .cell.ghost { background: transparent; border: 1px dashed #dde1e6; color: #bbb; }
+        .cell.lbl {
+            background: none; font-family: inherit; font-size: 12px; color: #666;
+            justify-content: flex-end; text-align: right; line-height: 1.2;
+        }
+        .cell.sym { background: none; font-size: 20px; color: #999; font-family: inherit; }
+        .cell.hdr {
+            flex-direction: column; line-height: 1.2; background: none; font-family: inherit;
+            height: auto; min-height: 36px; padding: 2px 0; border-bottom: 3px solid transparent; border-radius: 0;
+        }
+        .cell.hdr b { font-size: 13px; color: #222; }
+        .cell.hdr small { color: #888; font-size: 10.5px; }
+        .cell.hdr.hl-col { border-bottom-color: #0366d6; }
+
+        .cell.val  { background: #d1e5fd; }
+        .cell.key.on { background: #fde0e0; }
+        .cell.key.off { background: #fbf1f1; color: #aaa; }
+        .cell.qry.on { background: #ffe3a3; }
+        .cell.qry.off { background: #fff6e0; color: #aaa; }
+        .cell.mem  { background: #eef1f4; }
+        .cell.mem.new { background: #c9f2c9; box-shadow: 0 0 10px rgba(40,180,40,.25); }
+        .cell.mem.dim { opacity: .25; }
+        .cell.mem.hl  { background: #b8ecb8; box-shadow: 0 0 10px rgba(40,180,40,.3); }
+        .cell.score { background: #fff4dc; }
+        .cell.score.on { background: #ffe3a3; font-weight: bold; }
+        .cell.score.off { opacity: .5; }
+        .cell.out { background: #b8ecb8; font-weight: bold; box-shadow: 0 0 10px rgba(40,180,40,.3); }
+        .cell.bar {
+            background-image: linear-gradient(to top, var(--bc, rgba(0,0,0,.15)) calc(var(--p, 0) * 100%), transparent 0);
+        }
+        .cell.key.bar { --bc: rgba(215,58,73,.35); }
+        .cell.qry.bar { --bc: rgba(240,160,0,.45); }
+
+        @keyframes pop { from { transform: scale(.45); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .pop { animation: pop .5s ease backwards; }
+
+        /* crosstalk demo */
+        .d3 { display: flex; flex-wrap: wrap; gap: 1.2em; align-items: flex-start; }
+        .d3-left { flex: 0 0 240px; text-align: center; margin: 0 auto; }
+        .d3-right { flex: 1 1 320px; min-width: 300px; }
+        .panel { margin-bottom: .8em; opacity: 0; transform: translateY(6px); transition: opacity .5s, transform .5s; pointer-events: none; }
+        .panel.show { opacity: 1; transform: none; pointer-events: auto; }
+        .ptitle { font-size: 11.5px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: .02em; margin-bottom: .35em; }
+        .brow { display: flex; align-items: center; gap: 8px; margin: 4px 0; font-size: 13px; }
+        .blab { width: 56px; color: #555; flex: none; }
+        .btrack { flex: 1; height: 26px; background: #f6f8fa; border-radius: 5px; display: flex; overflow: hidden; }
+        .bseg {
+            height: 100%; display: flex; align-items: center; justify-content: center; color: #fff;
+            font-size: 11px; font-family: "SFMono-Regular", Consolas, Menlo, monospace;
+            transition: width .6s ease; white-space: nowrap; overflow: hidden;
+        }
+        .b1 { background: #4c9be8; }
+        .b2 { background: #e5736f; }
+        .bval { width: 82px; flex: none; font-family: "SFMono-Regular", Consolas, Menlo, monospace; font-size: 12.5px; color: #444; }
+        .legend { font-size: 12px; color: #666; margin-bottom: 4px; }
+        .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin: 0 4px 0 10px; vertical-align: -1px; }
+        .legend i:first-child { margin-left: 0; }
+        .verdict { padding: .6em .8em; border-radius: 6px; font-size: 13.5px; line-height: 1.45; background: #fff5f5; border-left: 4px solid #d73a49; }
+        .verdict.ok { background: #f3fbf4; border-left-color: #2da44e; }
+        .slider-row { font-size: 13px; color: #444; }
+        .slider-row input { width: 100%; margin: 4px 0 0; }
     </style>
 </head>
 <body>
@@ -142,24 +208,24 @@
 
     <div class="intro-text">
         <p>In High school, my rebellious teenage phase forced me to believe that generalised conventions and equations were archaic forms of understanding math as they were devoid of any intuition. To me, if anything had to make sense, it needed to be intuitive. But I have grown to realise that despite being a great launcher for building motivation and appreciation for something, it should not be a self made ceiling wherein it prevents you from seeing how this form generalises over multiple domains.</p>
-        
+
         <p>And I guess fundamentally, that is what I will try to achieve through this blog. We will use intuition to formulate a theory and then feed it back to the equation itself, and then see how our intuition was a special case or implementation of a more general natural phenomenon.</p>
     </div>
 
     <hr>
 
     <h2>Rediscovering SoftMax as a Kernel Function</h2>
-    
+
     <p>When building intuition for understanding Attention mechanism, I like to start from the concept of considering the memory state as an outer product accumulate process where the keys act as an index that decides how the values being updated can be distributed among the columns.</p>
 
     <p>Ideally, when we think of "memory" as accumulated context or piece of information that is encoded in our d dimensional space as a vector, then it makes sense to think of it as a library that holds this info. To have no interference whatsoever, we would have the keys acting as an index that points to the location of the info (which we would call value). Since the keys are encoded as one-hot encoding, the position of the 1 is the position of the required value in the memory. Then the query would just be just be mathing that position.</p>
 
     <div class="math-block">
         \[
-        \text{Match}(q_i, k_j) = q_i^T k_j = \delta_{ij} = 
-        \begin{cases} 
-        1 & \text{if } i = j \\ 
-        0 & \text{if } i \neq j 
+        \text{Match}(q_i, k_j) = q_i^T k_j = \delta_{ij} =
+        \begin{cases}
+        1 & \text{if } i = j \\
+        0 & \text{if } i \neq j
         \end{cases}
         \]
     </div>
@@ -173,16 +239,24 @@
         <p>This perfectly selects the second value with a weight of 1, and zeroes out the rest.</p>
     </div>
 
+    <!-- DEMO 1: ONE-HOT LIBRARY -->
+    <div class="demo" id="demo1">
+        <div class="demo-title">Animation: one-hot keys &mdash; fill the slots, then query</div>
+        <div class="demo-stage"></div>
+        <div class="demo-caption"></div>
+        <div class="demo-controls"></div>
+    </div>
+
     <p>As easy and intuitive as it sounds, the "library" analogy comes with the same limitation mathematically. If every book needs a new slot, every piece of info or value would also need a new slot. Imagine every piece of context updating the column count by 1. Therein lies the need for superposition. This allows us to take advantage of the d dimensional space more.</p>
 
     <h2>Superposition</h2>
 
     <p>As hinted above, now is a good time to put the library analogy to rest. To think of your books as being distributed across different slots such that each slot corresponds to different parts of different books is probably where I would draw the line and say it is a futile exercise to carry the analogy further. Although while typing this out, we could in fact push this further if we rephrase the analogy from referring to single books and towards topics. Now a "slot" or value can be a genre or theme, so that a book can be distributed among them. When we have a key that tells us which book we want, it can be seen as a weighted sum of different values or genres.</p>
 
-    <p>In this analogy: the <strong>Value (\(v\))</strong> is the genre profile (e.g., how much Sci-Fi vs. Romance). The <strong>Key (\(k\))</strong> is the thematic fingerprint or index (e.g., a mix of "Space" and "Castle"). The <strong>Memory (\(M\))** is the accumulated library.</p>
+    <p>In this analogy: the <strong>Value (\(v\))</strong> is the genre profile (e.g., how much Sci-Fi vs. Romance). The <strong>Key (\(k\))</strong> is the thematic fingerprint or index (e.g., a mix of "Space" and "Castle"). The <strong>Memory (\(M\))</strong> is the accumulated library.</p>
 
     <p>Mathematically, if we have a value vector \(v \in \mathbb{R}^m\) and a distributed key vector \(k \in \mathbb{R}^n\), the memory update is an outer product \(v k^T\) (an \(m \times n\) matrix) accumulated into the memory state \(M\):</p>
-    
+
     <div class="math-block">
         \[
         M = \sum_{i=1}^{t} v_i k_i^T
@@ -192,17 +266,17 @@
     <div class="example-box">
         <div class="example-title">Example A: Ideal Superposition (Orthogonal Keys)</div>
         <p>Let's look at the ideal scenario where superposition works perfectly. Our values represent genres <strong>[Sci-Fi, Romance]</strong>.</p>
-        
+
         <p><strong>Book 1</strong> is pure Sci-Fi: \(v_1 = \begin{bmatrix} 1 \\ 0 \end{bmatrix}\). Its thematic key is a mix of Space and Aliens: \(k_1 = \begin{bmatrix} 1 \\ 0.1 \end{bmatrix}\).<br>
         <strong>Book 2</strong> is pure Romance: \(v_2 = \begin{bmatrix} 0 \\ 1 \end{bmatrix}\). Its key is a mix of Castle and Drama: \(k_2 = \begin{bmatrix} -0.1 \\ 1 \end{bmatrix}\).</p>
-        
+
         <p>Notice that the keys are distributed (not one-hot), but they are perfectly orthogonal (\(k_1^T k_2 = -0.1 + 0.1 = 0\)). The memory state accumulates as:</p>
         <div class="math-block" style="margin: 0.5em 0; padding: 0.5em; background: none; border: none;">
             \[
             M = v_1 k_1^T + v_2 k_2^T = \begin{bmatrix} 1 & 0.1 \\ 0 & 0 \end{bmatrix} + \begin{bmatrix} 0 & 0 \\ -0.1 & 1 \end{bmatrix} = \begin{bmatrix} 1 & 0.1 \\ -0.1 & 1 \end{bmatrix}
             \]
         </div>
-        
+
         <p>If we query with \(q = \begin{bmatrix} 1 \\ 0.1 \end{bmatrix}\) (looking for Book 1), we get:</p>
         <div class="math-block" style="margin: 0.5em 0; padding: 0.5em; background: none; border: none;">
             \[
@@ -212,25 +286,53 @@
         <p>We retrieve perfectly clean Sci-Fi, with absolutely zero noise from Book 2. Superposition is powerful if we can keep the keys orthogonal.</p>
     </div>
 
+    <!-- DEMO 2: SUPERPOSITION -->
+    <div class="demo" id="demo2">
+        <div class="demo-title">Animation: superposition &mdash; a key spreads its value over the columns</div>
+        <div class="demo-stage"></div>
+        <div class="demo-caption"></div>
+        <div class="demo-controls"></div>
+    </div>
+
     <p>This gives us a beautiful associativity in the memory update.</p>
 
     <p>If we retrieve from our memory state \(M\) using query \(q\), we get \(M q = \sum v_i (k_i^T q) = \sum v_i \cdot \text{score}_i\). Ideally, we want our scoring mechanism to behave as a selector: the desired value should have a weight of \(1\), and all undesired values should have a weight of \(0\) (a one-hot vector).</p>
 
+    <h2>Where the Dot Product Falls Short</h2>
+
+    <p>Look closely at what retrieval is actually doing. Every stored item gets a score from the query, and the output is a score-weighted sum of all the values: \(M q = \sum_i \kappa(q, k_i)\, v_i\). Here \(\kappa(q,k) = q^T k\), so the dot product is playing the role of a <strong>kernel</strong>: a similarity function that decides how much each memory is allowed to speak. Everything depends on how well that kernel behaves as a selector, and this is where the cracks start to show.</p>
+
     <p>Unfortunately, the ensuing issue here is that even if the score is high for the desired value, the sum of undesired scores can still make the result noisy. This can be seen if we view it as an affine equation.</p>
 
     <div class="example-box">
-        <div class="example-title">Example B: The Reality (Crosstalk & Noise)</div>
+        <div class="example-title">Example B: The Reality (Crosstalk &amp; Noise)</div>
         <p>In reality, thematic fingerprints overlap heavily. We cannot always keep the keys orthogonal. Let's use overlapping keys:</p>
-        
+
         <p><strong>Book 1</strong> (Mostly Sci-Fi): \(v_1 = \begin{bmatrix} 0.8 \\ 0.2 \end{bmatrix}\). Key (Space + Aliens): \(k_1 = \begin{bmatrix} 1 \\ 0.5 \end{bmatrix}\).<br>
         <strong>Book 2</strong> (Mostly Romance): \(v_2 = \begin{bmatrix} 0.1 \\ 0.9 \end{bmatrix}\). Key (Space + Romance): \(k_2 = \begin{bmatrix} 0.5 \\ 1 \end{bmatrix}\).</p>
-        
+
         <p>The memory state \(M\) becomes a messy superposition of both.</p>
         <p>Any query then matches with the key via inner product to give a score that decides how desired a particular value is. Let's query with \(q = \begin{bmatrix} 1 \\ 0.5 \end{bmatrix}\) (looking for Book 1):</p>
         <p>Score for Book 1 (\(k_1\)): \(q^T k_1 = (1 \times 1) + (0.5 \times 0.5) = 1.25\)</p>
         <p>Score for Book 2 (\(k_2\)): \(q^T k_2 = (1 \times 0.5) + (0.5 \times 1) = 1.0\)</p>
-        <p>Because the scores are so close, the query "desires" Book 1 only slightly more than Book 2. When we retrieve \(M q = 1.25 v_1 + 1.0 v_2\), we get a heavy mixture of both genres. The retrieval is noisy.</p>
+        <p>Book 1 does win the contest, <em>1.25 vs 1.0</em>. But the scores are so close that Book 2 still gets almost the same say. When we retrieve \(M q = 1.25 v_1 + 1.0 v_2 = \begin{bmatrix} 1.10 \\ 1.15 \end{bmatrix}\), the answer reads as slightly more Romance than Sci-Fi: the retrieval has been taken over by the book we did not ask for.</p>
     </div>
+
+    <!-- DEMO 3: CROSSTALK -->
+    <div class="demo" id="demo3">
+        <div class="demo-title">Animation: crosstalk &mdash; the highest score still loses the vote</div>
+        <div class="demo-stage"></div>
+        <div class="demo-caption"></div>
+        <div class="demo-controls"></div>
+    </div>
+
+    <p>That is the core limitation of the plain dot product as a kernel, and it comes in three flavours:</p>
+    <ul>
+        <li><strong>It does not sharpen.</strong> Similar keys get similar scores (1.25 vs 1.0), so the winner does not take all. We wanted a selector, but we got a gentle weighting.</li>
+        <li><strong>Losers still contribute, and they add up.</strong> Every undesired item leaves a small non-zero weight. Individually harmless, but summed over many items (or one heavily overlapping item) they can outweigh the desired value.</li>
+        <li><strong>The scores are unbounded and unnormalised.</strong> They can be large, small, or even negative, so they are not a clean set of weights that add to 1.</li>
+    </ul>
+    <p>A better kernel would need to widen the gap between the winner and the rest, and turn the scores into proper weights. Hold on to that thought.</p>
 
     <!-- UPDATED AFFINE GRAPH -->
     <div class="graph-container">
@@ -238,7 +340,7 @@
         <p style="font-size: 0.9em; text-align: left; margin-bottom: 1.5em;">
             If the desired signal is \(x\), and our desired weight is \(m\), the ideal output is \(y = mx\). However, the sum of undesired scores introduces a constant bias \(c\). Thus, the actual output is an affine equation: <strong>\(y = mx + c\)</strong>.
         </p>
-        
+
         <!-- Detailed SVG Graph based on Example B -->
         <svg width="100%" height="350" viewBox="0 0 600 350" style="max-width: 550px;">
             <defs>
@@ -250,7 +352,7 @@
             <!-- Grid lines -->
             <line x1="60" y1="300" x2="550" y2="300" stroke="#ccc" stroke-width="2" marker-end="url(#arrow)" />
             <line x1="60" y1="300" x2="60" y2="50" stroke="#ccc" stroke-width="2" marker-end="url(#arrow)" />
-            
+
             <!-- Axis Labels -->
             <text x="550" y="320" font-family="sans-serif" font-size="12" fill="#666" text-anchor="end">Retrieval Score for Book 1 (x)</text>
             <text x="40" y="50" font-family="sans-serif" font-size="12" fill="#666" transform="rotate(-90 40,50)">Retrieved Sci-Fi Output (y)</text>
@@ -267,11 +369,11 @@
             <line x1="280" y1="300" x2="280" y2="100" stroke="#ccc" stroke-width="1" stroke-dasharray="2,2" />
             <text x="280" y="320" font-family="sans-serif" font-size="12" fill="#666" text-anchor="middle">x = 1.25</text>
 
-            <!-- Ideal Point on Line (1.25, 1.0) -> mapped to y=100 -->
+            <!-- Ideal Point on Line (1.25, 1.0) -->
             <circle cx="280" cy="122" r="5" fill="#0366d6" />
             <text x="290" y="115" font-family="sans-serif" font-size="11" fill="#0366d6">Ideal Output (1.0)</text>
 
-            <!-- Actual Point on Line (1.25, 1.1) -> mapped to y=87.5 -->
+            <!-- Actual Point on Line (1.25, 1.1) -->
             <circle cx="280" cy="100" r="5" fill="#d73a49" />
             <text x="290" y="90" font-family="sans-serif" font-size="11" fill="#d73a49">Actual Output (1.1)</text>
 
@@ -285,60 +387,371 @@
         </svg>
     </div>
 
-    <!-- ANIMATED OUTER PRODUCT VISUALIZER -->
-    <div class="graph-container" style="margin-top: 3em;">
-        <div class="example-title">Interactive: Outer Product Accumulation</div>
-        <p style="font-size: 0.9em; text-align: center; margin-bottom: 1em;">Hover over the vectors to see how they distribute into the memory matrix.</p>
-        
-        <div class="matrix-animation" id="outer-product-demo">
-            <!-- V1 -->
-            <div>
-                <div class="matrix-bracket">
-                    <div class="matrix-row"><div class="matrix-cell v-active">0.8</div></div>
-                    <div class="matrix-row"><div class="matrix-cell">0.2</div></div>
-                </div>
-                <div class="anim-label">Value (\(v_1\))<br>Genres</div>
-            </div>
-            
-            <div style="font-size: 1.5em; color: #666;">&times;</div>
-            
-            <!-- K1^T -->
-            <div>
-                <div class="matrix-bracket" style="flex-direction: row; padding: 15px 10px;">
-                    <div class="matrix-cell k-active">1.0</div>
-                    <div class="matrix-cell">0.5</div>
-                </div>
-                <div class="anim-label">Key (\(k_1^T\))<br>Features</div>
-            </div>
-            
-            <div style="font-size: 1.5em; color: #666;">=</div>
-            
-            <!-- M1 -->
-            <div>
-                <div class="matrix-bracket">
-                    <div class="matrix-row">
-                        <div class="matrix-cell m-active">0.8</div>
-                        <div class="matrix-cell">0.4</div>
-                    </div>
-                    <div class="matrix-row">
-                        <div class="matrix-cell">0.2</div>
-                        <div class="matrix-cell">0.1</div>
-                    </div>
-                </div>
-                <div class="anim-label">Memory (\(M_1\))</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tiny script to trigger the animation loop -->
     <script>
-        const demo = document.getElementById('outer-product-demo');
-        setInterval(() => {
-            demo.classList.add('play-anim');
-            setTimeout(() => {
-                demo.classList.remove('play-anim');
-            }, 2000);
-        }, 3000);
+    /* =========================================================
+       Shared helpers
+       ========================================================= */
+    const SUB = '₀₁₂₃₄₅₆₇₈₉';
+    const sub = n => SUB[n];
+    const f = x => String(Math.round(x * 100) / 100 + 0).replace('-', '−');
+
+    function mkGrid(stage, template) {
+        const g = document.createElement('div');
+        g.className = 'mgrid';
+        g.style.gridTemplateColumns = template;
+        stage.appendChild(g);
+        const m = {};
+        return {
+            get(r, c) {
+                const k = r + ',' + c;
+                if (!m[k]) {
+                    const d = document.createElement('div');
+                    d.className = 'cell blank';
+                    d.style.gridRow = r + 1;
+                    d.style.gridColumn = c + 1;
+                    g.appendChild(d);
+                    m[k] = d;
+                }
+                return m[k];
+            }
+        };
+    }
+    function setC(el, html, cls, p) {
+        el.innerHTML = html;
+        el.className = 'cell ' + cls;
+        if (p === undefined) el.style.removeProperty('--p');
+        else el.style.setProperty('--p', p);
+    }
+    function pop(el, delay) {
+        el.classList.remove('pop');
+        void el.offsetWidth;
+        el.style.animationDelay = (delay || 0) + 'ms';
+        el.classList.add('pop');
+    }
+
+    function Stepper(root, captions, render) {
+        const n = captions.length;
+        const cap = root.querySelector('.demo-caption');
+        const ctr = root.querySelector('.demo-controls');
+        ctr.innerHTML = '<button data-a="prev">◀ Back</button><div class="dots"></div>' +
+                        '<button data-a="next">Next ▶</button><button data-a="play" class="primary">▶ Play</button>';
+        const dots = ctr.querySelector('.dots');
+        const bPrev = ctr.querySelector('[data-a=prev]');
+        const bNext = ctr.querySelector('[data-a=next]');
+        const bPlay = ctr.querySelector('[data-a=play]');
+        let i = 0, timer = null;
+        for (let k = 0; k < n; k++) {
+            const d = document.createElement('span');
+            d.onclick = () => { stop(); go(k); };
+            dots.appendChild(d);
+        }
+        function go(k) {
+            i = Math.max(0, Math.min(n - 1, k));
+            render(i);
+            cap.innerHTML = captions[i];
+            [...dots.children].forEach((d, j) => d.classList.toggle('on', j === i));
+            bPrev.disabled = i === 0;
+            bNext.disabled = i === n - 1;
+        }
+        function stop() { if (timer) clearInterval(timer); timer = null; bPlay.textContent = '▶ Play'; }
+        function play() {
+            if (timer) { stop(); return; }
+            if (i === n - 1) go(0);
+            bPlay.textContent = '⏸ Pause';
+            timer = setInterval(() => { if (i < n - 1) go(i + 1); else stop(); }, 3400);
+        }
+        bPrev.onclick = () => { stop(); go(i - 1); };
+        bNext.onclick = () => { stop(); go(i + 1); };
+        bPlay.onclick = play;
+        go(0);
+    }
+
+    /* =========================================================
+       DEMO 1: One-hot keys (the library)
+       ========================================================= */
+    (function () {
+        const root = document.getElementById('demo1');
+        const G = mkGrid(root.querySelector('.demo-stage'), '84px 54px 26px 74px 74px 74px 22px 54px');
+        const names = ['Dune', 'Emma', 'Gone Girl'];
+        const genres = ['Sci-Fi', 'Romance', 'Mystery'];
+        const vals = [[.9, .1, 0], [.1, .8, .1], [0, .2, .8]];   // genre profile of each book
+
+        const captions = [
+            '<b>Empty memory.</b> Three slots (columns), each named after the book it will hold. The rows are genres, so every slot can store one genre profile.',
+            '<b>Write 1: Dune.</b> Its key is one-hot, a single 1 in position 1. The whole value is dropped into slot 1, and the 0s in the key mean every other slot receives ×0.',
+            '<b>Write 2: Emma.</b> Key [0, 1, 0]. Same story: the value lands entirely in slot 2 and Dune is left untouched.',
+            '<b>Write 3: Gone Girl.</b> Key [0, 0, 1]. Three books, three slots: zero interference, but also no room for a fourth book without adding a column.',
+            '<b>Query.</b> We want Emma, so q = [0, 1, 0]. Each slot is scored with qᵀkⱼ, giving 0, 1, 0. Only slot 2 gets a vote.',
+            '<b>Retrieve.</b> Weight the columns by their scores and add: 0·Dune + 1·Emma + 0·Gone Girl. We get exactly Emma\'s genre profile. Perfect recall, but it cost one slot per book.'
+        ];
+
+        function render(s) {
+            const w = (s >= 1 && s <= 3) ? s - 1 : -1;
+            const written = Math.min(s, 3);
+            const qry = s >= 4, res = s >= 5;
+
+            genres.forEach((gn, g) => setC(G.get(2 + g, 0), gn, 'lbl'));
+
+            for (let j = 0; j < 3; j++) {
+                const act = (w === j) || (qry && j === 1);
+                setC(G.get(0, 3 + j), '<b>' + names[j] + '</b><small>slot ' + (j + 1) + '</small>', 'hdr' + (act ? ' hl-col' : ''));
+            }
+
+            // incoming value
+            setC(G.get(0, 1), w >= 0 ? '<b>value v' + sub(w + 1) + '</b><small>' + names[w] + '</small>' : '', 'hdr');
+            for (let g = 0; g < 3; g++) {
+                const el = G.get(2 + g, 1);
+                if (w >= 0) { setC(el, f(vals[w][g]), 'val'); pop(el, g * 120); }
+                else setC(el, '', 'blank');
+            }
+            setC(G.get(3, 2), w >= 0 ? '→' : '', 'sym');
+
+            // key / query row
+            setC(G.get(1, 0), w >= 0 ? 'key k' + sub(w + 1) : (qry ? 'query q' : ''), 'lbl');
+            for (let j = 0; j < 3; j++) {
+                const el = G.get(1, 3 + j);
+                if (w >= 0) { const x = j === w ? 1 : 0; setC(el, x, 'key bar ' + (x ? 'on' : 'off'), x); }
+                else if (qry) { const x = j === 1 ? 1 : 0; setC(el, x, 'qry bar ' + (x ? 'on' : 'off'), x); }
+                else setC(el, '', 'blank');
+            }
+
+            // memory
+            for (let j = 0; j < 3; j++) for (let g = 0; g < 3; g++) {
+                const el = G.get(2 + g, 3 + j);
+                if (j < written) {
+                    let cls = 'mem';
+                    if (j === w) cls += ' new';
+                    if (qry && j !== 1) cls += ' dim';
+                    if (res && j === 1) cls += ' hl';
+                    setC(el, f(vals[j][g]), cls);
+                    if (j === w) pop(el, 300 + g * 150);
+                } else setC(el, '', 'ghost');
+            }
+
+            // scores
+            setC(G.get(5, 0), qry ? 'score qᵀkⱼ' : '', 'lbl');
+            for (let j = 0; j < 3; j++) {
+                const el = G.get(5, 3 + j);
+                if (qry) setC(el, j === 1 ? 1 : 0, 'score ' + (j === 1 ? 'on' : 'off'));
+                else setC(el, '', 'blank');
+            }
+
+            // output
+            setC(G.get(0, 7), res ? '<b>Mq</b><small>Emma</small>' : '', 'hdr');
+            setC(G.get(3, 6), res ? '=' : '', 'sym');
+            for (let g = 0; g < 3; g++) {
+                const el = G.get(2 + g, 7);
+                if (res) { setC(el, f(vals[1][g]), 'out'); pop(el, 200 + g * 150); }
+                else setC(el, '', 'blank');
+            }
+        }
+        Stepper(root, captions, render);
+    })();
+
+    /* =========================================================
+       DEMO 2: Superposition with orthogonal keys
+       ========================================================= */
+    (function () {
+        const root = document.getElementById('demo2');
+        const G = mkGrid(root.querySelector('.demo-stage'), '84px 54px 26px 84px 84px 22px 60px');
+        const feats = ['Space', 'Castle'];
+        const genres = ['Sci-Fi', 'Romance'];
+        const books = ['Dune', 'Jane Eyre'];
+        const V = [[1, 0], [0, 1]];
+        const K = [[1, .1], [-.1, 1]];
+        const Q = [1, .1];
+
+        const captions = [
+            '<b>Empty memory.</b> M is now a 2×2 matrix. Rows are genres, but the columns are no longer books. They are shared <i>feature channels</i> (Space, Castle) that every book writes into.',
+            '<b>Dune arrives.</b> Value v₁ = [Sci-Fi 1, Romance 0], key k₁ = [1, 0.1] (mostly Space, a hint of Castle). The key decides how the value is shared out: the Space column takes 100% of it, the Castle column 10%. Each cell receives v × key.',
+            '<b>Jane Eyre arrives.</b> v₂ = [0, 1], key k₂ = [−0.1, 1] (Castle &amp; Drama). Its shares are written <i>on top of</i> the same matrix. Note k₁ᵀk₂ = −0.1 + 0.1 = 0, so the two keys are orthogonal.',
+            '<b>Query</b> q = k₁ = [1, 0.1], "I\'m looking for Dune". The query reads each column in proportion to its own entries: the Space column at ×1, the Castle column at ×0.1.',
+            '<b>Add up each row.</b> Sci-Fi = 1 + 0.01 = <b>1.01</b>. Romance = −0.1 + 0.1 = <b>0</b>. Jane Eyre\'s contributions cancel exactly, so Mq = 1.01·v₁ + 0·v₂. With orthogonal keys there is zero crosstalk.'
+        ];
+
+        function render(s) {
+            const w = s === 1 ? 0 : (s === 2 ? 1 : -1);
+            const filled = s >= 1, qry = s >= 3, res = s >= 4;
+
+            genres.forEach((gn, g) => setC(G.get(2 + g, 0), gn, 'lbl'));
+            feats.forEach((fn, j) => setC(G.get(0, 3 + j), '<b>' + fn + '</b><small>feature ' + (j + 1) + '</small>', 'hdr'));
+
+            // incoming value
+            setC(G.get(0, 1), w >= 0 ? '<b>value v' + sub(w + 1) + '</b><small>' + books[w] + '</small>' : '', 'hdr');
+            for (let g = 0; g < 2; g++) {
+                const el = G.get(2 + g, 1);
+                if (w >= 0) { setC(el, f(V[w][g]), 'val'); pop(el, g * 120); } else setC(el, '', 'blank');
+                setC(G.get(2 + g, 2), w >= 0 ? '→' : '', 'sym');
+            }
+
+            // key / query row
+            setC(G.get(1, 0), w >= 0 ? 'key k' + sub(w + 1) + 'ᵀ<br>(share per column)' : (qry ? 'query qᵀ' : ''), 'lbl');
+            for (let j = 0; j < 2; j++) {
+                const el = G.get(1, 3 + j);
+                if (w >= 0) setC(el, f(K[w][j]), 'key bar on', Math.abs(K[w][j]));
+                else if (qry) setC(el, f(Q[j]), 'qry bar on', Math.abs(Q[j]));
+                else setC(el, '', 'blank');
+            }
+
+            // memory
+            for (let g = 0; g < 2; g++) for (let j = 0; j < 2; j++) {
+                const el = G.get(2 + g, 3 + j);
+                if (!filled) { setC(el, '', 'ghost'); continue; }
+                const M = (s >= 1 ? V[0][g] * K[0][j] : 0) + (s >= 2 ? V[1][g] * K[1][j] : 0);
+                if (qry) { setC(el, f(M * Q[j]), 'mem'); continue; }
+                const isNew = w >= 0 && V[w][g] !== 0;
+                setC(el, f(M), 'mem' + (isNew ? ' new' : ''));
+                if (isNew) pop(el, 350 + j * 350);
+            }
+
+            // output
+            setC(G.get(0, 6), res ? '<b>Mq</b>' : '', 'hdr');
+            for (let g = 0; g < 2; g++) {
+                setC(G.get(2 + g, 5), res ? '=' : '', 'sym');
+                const el = G.get(2 + g, 6);
+                if (res) {
+                    let sum = 0;
+                    for (let j = 0; j < 2; j++) sum += (V[0][g] * K[0][j] + V[1][g] * K[1][j]) * Q[j];
+                    setC(el, f(sum), 'out'); pop(el, 200 + g * 250);
+                } else setC(el, '', 'blank');
+            }
+        }
+        Stepper(root, captions, render);
+    })();
+
+    /* =========================================================
+       DEMO 3: Crosstalk, the highest score loses the vote
+       ========================================================= */
+    (function () {
+        const root = document.getElementById('demo3');
+        const stage = root.querySelector('.demo-stage');
+        stage.innerHTML =
+        '<div class="d3">' +
+          '<div class="d3-left">' +
+            '<div class="ptitle">Key space</div>' +
+            '<svg viewBox="0 0 250 235" width="100%" style="max-width:250px">' +
+              '<defs>' +
+                '<marker id="d3-ah-b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#4c9be8"/></marker>' +
+                '<marker id="d3-ah-r" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#e5736f"/></marker>' +
+              '</defs>' +
+              '<line x1="34" y1="205" x2="242" y2="205" stroke="#bbb"/>' +
+              '<line x1="34" y1="205" x2="34" y2="12" stroke="#bbb"/>' +
+              '<text x="242" y="226" text-anchor="end" font-size="11" fill="#888" font-family="sans-serif">feature 1 →</text>' +
+              '<text x="14" y="200" font-size="11" fill="#888" font-family="sans-serif" transform="rotate(-90 14,200)">feature 2 →</text>' +
+              '<line id="d3-q" stroke="#2da44e" stroke-width="8" stroke-opacity=".25" stroke-linecap="round"/>' +
+              '<line id="d3-k1" stroke="#4c9be8" stroke-width="2.5" marker-end="url(#d3-ah-b)"/>' +
+              '<line id="d3-k2" stroke="#e5736f" stroke-width="2.5" marker-end="url(#d3-ah-r)"/>' +
+              '<text id="d3-t1" font-size="12" fill="#4c9be8" font-family="sans-serif">k₁ = q</text>' +
+              '<text id="d3-t2" font-size="12" fill="#e5736f" font-family="sans-serif">k₂</text>' +
+              '<text id="d3-cos" x="246" y="12" text-anchor="end" font-size="11.5" fill="#555" font-family="sans-serif"></text>' +
+            '</svg>' +
+          '</div>' +
+          '<div class="d3-right">' +
+            '<div class="legend"><i class="b1"></i>Book 1: Sci-Fi 0.8 · Romance 0.2 <i class="b2"></i>Book 2: Sci-Fi 0.1 · Romance 0.9</div>' +
+            '<div class="panel" id="d3-pa">' +
+              '<div class="ptitle">① Score of each book &nbsp;(qᵀkᵢ)</div>' +
+              '<div class="brow"><span class="blab">Book 1</span><div class="btrack"><div class="bseg b1" id="d3-s1"></div></div><span class="bval" id="d3-s1v"></span></div>' +
+              '<div class="brow"><span class="blab">Book 2</span><div class="btrack"><div class="bseg b2" id="d3-s2"></div></div><span class="bval" id="d3-s2v"></span></div>' +
+            '</div>' +
+            '<div class="panel" id="d3-pb">' +
+              '<div class="ptitle">② What each book adds to the output &nbsp;(score × value)</div>' +
+              '<div class="brow"><span class="blab">Sci-Fi</span><div class="btrack"><div class="bseg b1" id="d3-a0"></div><div class="bseg b2" id="d3-b0"></div></div><span class="bval" id="d3-t0"></span></div>' +
+              '<div class="brow"><span class="blab">Romance</span><div class="btrack"><div class="bseg b1" id="d3-a1"></div><div class="bseg b2" id="d3-b1"></div></div><span class="bval" id="d3-t1v"></span></div>' +
+            '</div>' +
+            '<div class="panel" id="d3-pc"><div class="verdict" id="d3-v"></div></div>' +
+            '<div class="panel slider-row" id="d3-ps">' +
+              '<div class="ptitle">Key overlap α &nbsp;(k₁ = [1, α], k₂ = [α, 1])</div>' +
+              '<span>0 = orthogonal &nbsp;·&nbsp; <b id="d3-av">0.50</b> &nbsp;·&nbsp; 1 = identical</span>' +
+              '<input type="range" id="d3-slider" min="0" max="1" step="0.05" value="0.5">' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+
+        const $ = id => stage.querySelector('#' + id);
+        const V1 = [.8, .2], V2 = [.1, .9];
+        let sl = 0.5, cur = 0;
+
+        const captions = [
+            '<b>Setup.</b> Two books sit in memory: Book 1 (mostly Sci-Fi) and Book 2 (mostly Romance). Their keys are <i>not</i> orthogonal; they point in similar directions (cos θ = 0.8). We query with q = k₁, so we want Book 1.',
+            '<b>Scores.</b> The dot product does its job: Book 1 gets the highest score (1.25 vs 1.0). If we only looked at individual scores, we would pick the right book.',
+            '<b>But retrieval is not argmax.</b> Mq adds up <i>every</i> value, weighted by its score. Book 2\'s score of 1.0 is only slightly lower, so its Romance-heavy value gets almost the same weight as Book 1\'s.',
+            '<b>The sum.</b> Sci-Fi: 1.00 + 0.10 = 1.10. Romance: 0.25 + 0.90 = 1.15. The output reads as Romance. The book with the highest score lost the vote, because the undesired contributions piled up.',
+            '<b>Try it.</b> Slide the key overlap α. Book 1 has the top score for every α &lt; 1, yet past α ≈ 0.45 the output flips to Romance. At α = 0 (orthogonal keys) the leak disappears, which is Example A again.'
+        ];
+
+        function calc(a) {
+            const s1 = 1 + a * a, s2 = 2 * a;
+            const c1 = V1.map(x => x * s1), c2 = V2.map(x => x * s2);
+            return { s1, s2, c1, c2, tot: [c1[0] + c2[0], c1[1] + c2[1]] };
+        }
+        function setLine(el, x1, y1, x2, y2) {
+            el.setAttribute('x1', x1); el.setAttribute('y1', y1);
+            el.setAttribute('x2', x2); el.setAttribute('y2', y2);
+        }
+        const show = (id, on) => $(id).classList.toggle('show', on);
+        const seg = (el, v, scale) => {
+            const pct = v / scale * 100;
+            el.style.width = pct + '%';
+            el.textContent = pct >= 6 ? f(v) : '';
+        };
+
+        function render(s) {
+            cur = s;
+            const a = s === 4 ? sl : 0.5;
+            const r = calc(a);
+            const scale = s === 4 ? 2.4 : 1.4;
+
+            show('d3-pa', s >= 1); show('d3-pb', s >= 2); show('d3-pc', s >= 3); show('d3-ps', s === 4);
+
+            // key space
+            const S = 170, ox = 34, oy = 205;
+            const k1 = [ox + S, oy - S * a], k2 = [ox + S * a, oy - S];
+            setLine($('d3-q'), ox, oy, k1[0], k1[1]);
+            setLine($('d3-k1'), ox, oy, k1[0], k1[1]);
+            setLine($('d3-k2'), ox, oy, k2[0], k2[1]);
+            $('d3-t1').setAttribute('x', k1[0] - 8); $('d3-t1').setAttribute('y', k1[1] + 18);
+            $('d3-t1').setAttribute('text-anchor', 'end');
+            $('d3-t2').setAttribute('x', k2[0] + 8); $('d3-t2').setAttribute('y', k2[1] + 4);
+            $('d3-cos').textContent = 'cos θ = ' + (2 * a / (1 + a * a)).toFixed(2);
+
+            // ① scores
+            seg($('d3-s1'), r.s1, scale); seg($('d3-s2'), r.s2, scale);
+            $('d3-s1v').innerHTML = f(r.s1) + (r.s1 > r.s2 + 1e-9 ? ' <b style="color:#2da44e">★ top</b>' : '');
+            $('d3-s2v').textContent = f(r.s2);
+
+            // ② contributions
+            for (let g = 0; g < 2; g++) {
+                seg($('d3-a' + g), r.c1[g], scale);
+                seg($('d3-b' + g), r.c2[g], scale);
+            }
+            const win = r.tot[0] >= r.tot[1] ? 0 : 1;
+            const tot = (g) => s >= 3
+                ? '= ' + (g === win ? '<b style="color:#d73a49">' + f(r.tot[g]) + ' ◀</b>' : f(r.tot[g]))
+                : '';
+            $('d3-t0').innerHTML = tot(0);
+            $('d3-t1v').innerHTML = tot(1);
+
+            // verdict
+            const v = $('d3-v');
+            const leak = 'Book 2 leaks <b>+' + f(r.c2[0]) + '</b> into Sci-Fi and <b>+' + f(r.c2[1]) + '</b> into Romance.';
+            if (r.tot[1] > r.tot[0]) {
+                v.className = 'verdict';
+                v.innerHTML = 'Mq reads as <b>Romance</b> (' + f(r.tot[1]) + ' vs ' + f(r.tot[0]) + '). Wrong book, even though Book 1 had the highest score. ' + leak;
+            } else {
+                v.className = 'verdict ok';
+                v.innerHTML = 'Mq reads as <b>Sci-Fi</b> (' + f(r.tot[0]) + ' vs ' + f(r.tot[1]) + '), but the answer is contaminated. ' + leak;
+            }
+        }
+
+        const slider = $('d3-slider');
+        slider.addEventListener('input', () => {
+            sl = +slider.value;
+            $('d3-av').textContent = sl.toFixed(2);
+            render(4);
+        });
+
+        Stepper(root, captions, render);
+    })();
     </script>
 
 </body>
