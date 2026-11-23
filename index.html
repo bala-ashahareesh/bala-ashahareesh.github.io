@@ -82,7 +82,7 @@
 <body>
 
     <h1>Kernel Optimisation for NPU</h1>
-    <p class="subtitle">Potential of Cauchy Schwartz Inequality as an enabler of Softmax Tiling</p>
+    <p class="subtitle">Mapping Math to Intuition</p>
 
     <h2>Rediscovering SoftMax as a Kernel Function</h2>
     
@@ -113,7 +113,7 @@
 
     <h2>Superposition</h2>
 
-    <p>As hinted above, now is a good time to put the library analogy to rest. To think of your books as being distributed across different slots such that each slot corresponds to different parts of different books is probably where I would draw the line and say it is a futile exercise to carry the analogy further.</p>
+    <p>As hinted above, now is a good time to put the library analogy to rest. To think of your books as being distributed across different slots such that each slot corresponds to different parts of different books is probably where I would draw the line and say it is a futile exercise to carry the analogy further. Although while typing this out, we could in fact push this further if we rephrase the analogy from referring to single books and towards topics. Now a "slot" or value can be a genre or theme, so that a book can be distributed among them. When we have a key that tells us which book we want, it can be seen as a weighted sum of different values or genres.</p>
 
     <p>Mathematically, if we have a value vector \(v \in \mathbb{R}^m\) and a distributed key vector \(k \in \mathbb{R}^n\), the memory update is an outer product \(v k^T\) (an \(m \times n\) matrix) accumulated into the memory state \(M\):</p>
     
@@ -124,18 +124,26 @@
     </div>
 
     <div class="example-box">
-        <div class="example-title">Example: Outer Product Accumulation</div>
-        <p>Suppose our value represents an output feature and our key acts as a spatial index. Let \(v_1 = \begin{bmatrix} 2 \\ 3 \end{bmatrix}\) and \(k_1 = \begin{bmatrix} 1 \\ 4 \end{bmatrix}\).</p>
-        <p>The outer product \(v_1 k_1^T\) distributes the value \(v_1\) across the columns according to the weights in \(k_1\):</p>
+        <div class="example-title">Example: Outer Product Accumulation (Genres)</div>
+        <p>Let's map this to our new analogy. Our memory state \(M\) will hold the "genre profile" of our library. Let our values (\(v\)) represent the genres <strong>[Sci-Fi, Romance]</strong>.</p>
+        
+        <p><strong>Book 1</strong> is 80% Sci-Fi and 20% Romance: \(v_1 = \begin{bmatrix} 0.8 \\ 0.2 \end{bmatrix}\).<br>
+        Its key (how it indexes into our memory slots) is: \(k_1 = \begin{bmatrix} 1 \\ 4 \end{bmatrix}\).</p>
+        
+        <p>The outer product \(v_1 k_1^T\) distributes this book's genre profile across the columns according to its key weights:</p>
         <div class="math-block" style="margin: 0.5em 0; padding: 0.5em; background: none; border: none;">
             \[
-            M_1 = v_1 k_1^T = \begin{bmatrix} 2 \\ 3 \end{bmatrix} \begin{bmatrix} 1 & 4 \end{bmatrix} = \begin{bmatrix} 2 & 8 \\ 3 & 12 \end{bmatrix}
+            M_1 = v_1 k_1^T = \begin{bmatrix} 0.8 \\ 0.2 \end{bmatrix} \begin{bmatrix} 1 & 4 \end{bmatrix} = \begin{bmatrix} 0.8 & 3.2 \\ 0.2 & 0.8 \end{bmatrix}
             \]
         </div>
-        <p>If we add a second update, say \(v_2 = \begin{bmatrix} 1 \\ 1 \end{bmatrix}\) and \(k_2 = \begin{bmatrix} 2 \\ 0 \end{bmatrix}\), the memory state accumulates:</p>
+        
+        <p><strong>Book 2</strong> is 10% Sci-Fi and 90% Romance: \(v_2 = \begin{bmatrix} 0.1 \\ 0.9 \end{bmatrix}\).<br>
+        Its key is: \(k_2 = \begin{bmatrix} 2 \\ 0 \end{bmatrix}\).</p>
+        
+        <p>The memory state accumulates both books (superposition of their genres):</p>
         <div class="math-block" style="margin: 0.5em 0; padding: 0.5em; background: none; border: none;">
             \[
-            M = M_1 + v_2 k_2^T = \begin{bmatrix} 2 & 8 \\ 3 & 12 \end{bmatrix} + \begin{bmatrix} 2 & 0 \\ 2 & 0 \end{bmatrix} = \begin{bmatrix} 4 & 8 \\ 5 & 12 \end{bmatrix}
+            M = M_1 + v_2 k_2^T = \begin{bmatrix} 0.8 & 3.2 \\ 0.2 & 0.8 \end{bmatrix} + \begin{bmatrix} 0.2 & 0 \\ 1.8 & 0 \end{bmatrix} = \begin{bmatrix} 1.0 & 3.2 \\ 2.0 & 0.8 \end{bmatrix}
             \]
         </div>
     </div>
@@ -143,11 +151,11 @@
     <p>Any query then matches with the key via inner product to give a score that decides how desired a particular value is.</p>
 
     <div class="example-box">
-        <div class="example-title">Example: Query-Key Inner Product</div>
-        <p>Let a query vector be \(q = \begin{bmatrix} 1 \\ 0.5 \end{bmatrix}\). We calculate the score by taking the inner product with the keys.</p>
-        <p>Score with \(k_1\): \(q^T k_1 = (1 \times 1) + (0.5 \times 4) = 3.0\)</p>
-        <p>Score with \(k_2\): \(q^T k_2 = (1 \times 2) + (0.5 \times 0) = 2.0\)</p>
-        <p>Because the score with \(k_1\) is higher, the query "desires" \(v_1\) more than \(v_2\).</p>
+        <div class="example-title">Example: Query-Key Inner Product (Retrieval)</div>
+        <p>Let's say we are looking for a book with a query vector \(q = \begin{bmatrix} 1 \\ 0.5 \end{bmatrix}\). We calculate the score by taking the inner product with the keys of our stored books.</p>
+        <p>Score for Book 1 (\(k_1\)): \(q^T k_1 = (1 \times 1) + (0.5 \times 4) = 3.0\)</p>
+        <p>Score for Book 2 (\(k_2\)): \(q^T k_2 = (1 \times 2) + (0.5 \times 0) = 2.0\)</p>
+        <p>Because the score with \(k_1\) is higher, the query "desires" Book 1 (\(v_1\)) more than Book 2 (\(v_2\)). However, because we are using superposition, retrieving \(M q\) gives us a weighted sum of <em>both</em> genre profiles: \((3.0 \times v_1) + (2.0 \times v_2)\).</p>
     </div>
 
     <p>This gives us a beautiful associativity in the memory update.</p>
