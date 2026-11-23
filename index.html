@@ -451,6 +451,37 @@
         .norm-temp-control { margin-top:1.25em; background:#f7f9fb; padding:12px 15px; border-radius:6px; }
         .norm-temp-hints { display:flex; justify-content:space-between; font-size:11px; color:#66707a; }
 
+        /* embedding / feature space intro */
+        /* Spacious, self-contained perspective 3D embedding scene */
+        .embedding-showcase { margin: 2em 0; padding: 22px; border: 1px solid #e1e5ea; border-radius: 14px; background: #fff; box-shadow: 0 8px 28px rgba(25,38,59,.045); }
+        .embedding-eyebrow { font: 700 11px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; letter-spacing: .1em; color:#687486; text-transform:uppercase; margin-bottom: 7px; }
+        .embedding-showcase h3 { margin:0 0 5px; padding:0; border:0; font-size:1.35em; }
+        .embedding-subtitle { margin:0 0 20px; color:#667180; font-size:.94em; }
+        .embedding-canvas-shell { position:relative; height: min(620px,70vw); min-height:400px; background:radial-gradient(ellipse at 50% 40%,#fff 5%,#f7f9fd 100%); border:1px solid #e6eaf0; border-radius:12px; overflow:hidden; }
+        .embedding-canvas-shell canvas { width:100%; height:100%; display:block; cursor:grab; touch-action:none; }
+        .embedding-canvas-shell canvas:active { cursor:grabbing; }
+        .embedding-corner { position:absolute; left:19px; top:17px; pointer-events:none; font:12px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; color:#64748b; }
+        .embedding-corner strong { color:#344054; font-weight:650; }
+        .embedding-hint {position:absolute; right:16px; bottom:14px; pointer-events:none; color:#687486; background:rgba(255,255,255,.92); padding:7px 11px; border:1px solid #e5eaf1; border-radius:99px; font:12px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+        .embedding-actions {display:flex; align-items:center; flex-wrap:wrap; justify-content:space-between; gap:12px; padding:15px 0 0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+        .embedding-action-group {display:flex; flex-wrap:wrap; gap:7px;}
+        .embedding-actions button { border:1px solid #dde3ec; background:white; border-radius:7px; color:#475467; padding:9px 12px; font:600 12px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; cursor:pointer; }
+        .embedding-actions button:hover {background:#f5f7fc;}
+        .embedding-actions button.active {background:#eaf2fe; border-color:#98bdf5; color:#155fc2;}
+        .embedding-key {display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin:15px 0 18px; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}
+        .embedding-key > div { border:1px solid #e9edf3; padding:11px 13px; border-radius:9px; background:#fafbfd; font-size:12px; }
+        .embedding-key strong { display:block; font-size:13px; color:#2d3748; margin-bottom:3px; }
+        .embedding-dot {display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:7px;}
+        .embedding-key small {font-size:11px; color:#697586;}
+        .embedding-detail {display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start; margin-top:10px;}
+        .embedding-detail p {margin:.35em 0 .8em; font-size:.95em;}
+        .embedding-formula {background:#f5f8fd; border-left:3px solid #3478d4; border-radius:6px; padding:12px 14px; font-size:14px; line-height:1.8;}
+        .embedding-list {display:grid;gap:6px; margin-top:5px; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}
+        .embedding-list button { text-align:left; padding:10px 12px;border:1px solid #e8edf4;border-radius:8px;background:#fff;cursor:pointer;font:12px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; color:#485466; }
+        .embedding-list button strong {display:block;color:#273449;font-size:13px;}
+        .embedding-list button.active {border-color:#a6c7fa;background:#f2f7ff;}
+        .embedding-note {margin-top:17px; padding:13px 15px; background:#f8fafc; border-left:3px solid #64748b; color:#475467; border-radius:6px; font-size:.93em;}
+        @media (max-width:650px) { .embedding-showcase{padding:12px;} .embedding-canvas-shell{height:440px;min-height:360px;} .embedding-key{grid-template-columns:1fr;} .embedding-detail{grid-template-columns:1fr;} .embedding-corner{top:9px;left:10px;} .embedding-hint{right:8px;bottom:8px;font-size:10px;} }
     </style>
 
 </head>
@@ -476,6 +507,67 @@
     </div>
 
 
+
+    <h2>Feature Space and Semantic Vectors</h2>
+
+    <p>One of the most fundamental prerequisites we need before proceeding further is an intuition for an <strong>n-dimensional feature space</strong>. In such a space, every point can be interpreted as carrying semantic meaning, and every vector can be decomposed into a sum of components along different basis directions.</p>
+
+    <p>Ideally, we like to think of these basis directions as being <em>independent</em> or close to orthogonal, so that each coordinate reflects a different component of meaning. In the simple visual examples below, we attach easy human-readable meanings to those components. In real large language models, however, the learned basis functions are usually not so cleanly interpretable to us.</p>
+
+    <section class="embedding-showcase" aria-label="Interactive three-dimensional embedding space">
+        <div class="embedding-eyebrow">Interactive geometry · 3 dimensions</div>
+        <h3>Meaning as a point in feature space</h3>
+        <p class="embedding-subtitle">Three independent feature directions form a coordinate system. Each concept is a vector obtained by combining them.</p>
+        <div class="embedding-canvas-shell">
+            <canvas id="semantic-3d" role="img" aria-label="Rotatable perspective 3D scene showing the Space, Romance, Mystery basis axes and three semantic embedding vectors"></canvas>
+            <div class="embedding-corner"><strong>3D FEATURE SPACE</strong><br>Perspective projection · orthogonal basis</div>
+            <div class="embedding-hint">Drag to rotate · Scroll to zoom</div>
+        </div>
+        <div class="embedding-actions">
+            <div class="embedding-action-group" id="embedding-controls">
+                <button type="button" class="active" data-mode="all">All meanings</button>
+                <button type="button" data-mode="components">Show decomposition</button>
+                <button type="button" data-mode="basis">Basis only</button>
+            </div>
+            <button type="button" id="embedding-reset">↺ Reset view</button>
+        </div>
+        <div class="embedding-key">
+            <div><strong><span class="embedding-dot" style="background:#3274c8"></span>b₁ · Space</strong><small>Feature 1 · horizontal basis direction</small></div>
+            <div><strong><span class="embedding-dot" style="background:#e48b48"></span>b₂ · Romance</strong><small>Feature 2 · independent ground-plane direction</small></div>
+            <div><strong><span class="embedding-dot" style="background:#8b5cc4"></span>b₃ · Mystery</strong><small>Feature 3 · vertical basis direction</small></div>
+        </div>
+        <div class="embedding-detail">
+            <div>
+                <div class="embedding-eyebrow">Select an embedding</div>
+                <div class="embedding-list" id="embedding-tokens">
+                    <button type="button" data-token="0" class="active"><strong><span style="color:#179782">●</span> A · Space opera</strong>Mostly Space, with Mystery and a trace of Romance</button>
+                    <button type="button" data-token="1"><strong><span style="color:#dc7791">●</span> B · Romantic thriller</strong>Romance and Mystery, less Space</button>
+                    <button type="button" data-token="2"><strong><span style="color:#ac7a27">●</span> C · Sci-fi romance</strong>Space and Romance, with some Mystery</button>
+                </div>
+            </div>
+            <div>
+                <div class="embedding-eyebrow">Vector decomposition</div>
+                <div class="embedding-formula" id="embedding-description">
+                    <strong>A · Space opera</strong><br>
+                    x = 0.80 b₁ + 0.10 b₂ + 0.60 b₃<br>
+                    Coordinates: [0.80, 0.10, 0.60]
+                </div>
+                <p>The dotted component path shows how to reach the selected vector by walking along each of the three independent basis directions.</p>
+            </div>
+        </div>
+        <div class="embedding-note"><strong>These labels are intentionally illustrative.</strong> We call the axes “Space”, “Romance”, and “Mystery” to make coordinates intuitive. Learned features in real language models need not coincide with individual human-readable concepts; semantic information can be distributed across many directions. An orthogonal coordinate basis is a mathematical convenience, not a claim that an LLM discovers three neat semantic axes.</div>
+        <p style="font-size:.94em;margin:15px 0 0;color:#566274;"><strong>Why the next diagrams use 2D:</strong> they keep the same vector-space mathematics, but restrict attention to two coordinates so the transformations, dot products, and crosstalk can be seen without a camera.</p>
+    </section>
+
+    <div class="math-block">
+        \[
+        x = c_1 b_1 + c_2 b_2 + c_3 b_3,
+        \qquad
+        x \in \mathbb{R}^3.
+        \]
+    </div>
+
+    <p>So when we later speak about a key, query, or value being represented by a vector, what we really mean is that it is a point in such a feature space. Its coordinates tell us how much of each basis component is present.</p>
 
     <hr>
 
@@ -975,6 +1067,140 @@
 
 
     <script>
+
+    /* Self-contained, drag-to-orbit 3D semantic vector plot (no external JS dependency). */
+    (() => {
+      const canvas = document.getElementById('semantic-3d');
+      if (!canvas) return;
+      const context = canvas.getContext('2d');
+      if (!context) return;
+      const entries = [
+        {name:'A · Space opera', v:[.8,.1,.6], color:'#159a87'},
+        {name:'B · Romantic thriller',v:[.25,.75,.7],color:'#d96c8b'},
+        {name:'C · Sci-fi romance',v:[.50,.45,.20],color:'#ba842c'}
+      ];
+      const axes = [{v:[1.25,0,0],name:'b₁ · Space',color:'#3274c8'},
+                    {v:[0,1.25,0],name:'b₂ · Romance',color:'#e48b48'},
+                    {v:[0,0,1.25],name:'b₃ · Mystery',color:'#8b5cc4'}];
+      let yaw=-.75, elev=.46, zoom=1, selected=0, mode='all';
+      let width=760,height=580,dpr=1;
+      const dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+      const center=[.48,.43,.43];
+      const O=[0,0,0];
+      function project(v){
+        const D=[v[0]-center[0],v[1]-center[1],v[2]-center[2]];
+        const camera=[Math.cos(elev)*Math.cos(yaw),Math.cos(elev)*Math.sin(yaw),Math.sin(elev)];
+        const right=[-Math.sin(yaw),Math.cos(yaw),0];
+        const up=[-Math.sin(elev)*Math.cos(yaw),-Math.sin(elev)*Math.sin(yaw),Math.cos(elev)];
+        const depth=4.5-dot(D,camera);
+        const scale=Math.min(width*.68,height*.87)*zoom*1.3/depth;
+        return {x:width*.5+dot(D,right)*scale,y:height*.52-dot(D,up)*scale,depth:depth};
+      }
+      function line(a,b,color,weight=1,dash=[],alpha=1){
+        const A=project(a),B=project(b);
+        context.save();context.globalAlpha=alpha;context.strokeStyle=color;context.lineWidth=weight;context.setLineDash(dash);
+        context.beginPath();context.moveTo(A.x,A.y);context.lineTo(B.x,B.y);context.stroke();context.restore();
+      }
+      function arrow(a,b,color,weight=3,alpha=1){
+        const A=project(a),B=project(b),theta=Math.atan2(B.y-A.y,B.x-A.x);
+        const size=weight>3?11:9;
+        line(a,b,color,weight,[],alpha);
+        context.save();context.globalAlpha=alpha;context.fillStyle=color;
+        context.beginPath();context.moveTo(B.x,B.y);
+        context.lineTo(B.x-size*Math.cos(theta-.42),B.y-size*Math.sin(theta-.42));
+        context.lineTo(B.x-size*Math.cos(theta+.42),B.y-size*Math.sin(theta+.42));
+        context.closePath();context.fill();context.restore();
+      }
+      function label(p,text,color,dx=10,dy=0,bg=true){
+        const P=project(p);const x=P.x+dx,y=P.y+dy;
+        context.save();context.font='600 13px system-ui, -apple-system, sans-serif';
+        const w=context.measureText(text).width;
+        if(bg){context.fillStyle='rgba(255,255,255,.91)';context.beginPath();context.roundRect(x-5,y-15,w+10,23,5);context.fill();}
+        context.fillStyle=color;context.fillText(text,x,y);context.restore();
+      }
+      function shade(poly,fill,stroke){
+        context.save();context.beginPath();poly.forEach((p,i)=>{const q=project(p);if(i===0)context.moveTo(q.x,q.y);else context.lineTo(q.x,q.y);});
+        context.closePath();context.fillStyle=fill;context.fill();context.strokeStyle=stroke;context.lineWidth=1;context.stroke();context.restore();
+      }
+      function drawGrid(){
+        // Three orthogonal translucent coordinate planes, real 3D geometry.
+        const planes=[
+          {poly:[[0,0,0],[1.3,0,0],[1.3,1.3,0],[0,1.3,0]],fill:'rgba(50,116,200,.035)'},
+          {poly:[[0,0,0],[1.3,0,0],[1.3,0,1.3],[0,0,1.3]],fill:'rgba(139,92,196,.027)'},
+          {poly:[[0,0,0],[0,1.3,0],[0,1.3,1.3],[0,0,1.3]],fill:'rgba(228,139,72,.025)'}
+        ];
+        // Painter ordering by depth of plane center.
+        planes.sort((a,b)=>{const avg=p=>p.poly.reduce((v,q)=>v+project(q).depth,0)/4;return avg(b)-avg(a);});
+        planes.forEach(p=>shade(p.poly,p.fill,'rgba(165,178,194,.23)'));
+        for(let i=0;i<=5;i++){
+          const t=i*.25;
+          for(const [a,b] of [
+            [[t,0,0],[t,1.25,0]],[[0,t,0],[1.25,t,0]],
+            [[t,0,0],[t,0,1.25]],[[0,0,t],[1.25,0,t]],
+            [[0,t,0],[0,t,1.25]],[[0,0,t],[0,1.25,t]]])
+            line(a,b,'#cdd6e2',.85,[],.55);
+        }
+        for(const axis of axes) arrow(O,axis.v,axis.color,3.4,.92);
+        axes.forEach(a=>label(a.v,a.name,a.color,9,-5));
+      }
+      function draw(){
+        context.clearRect(0,0,width,height);
+        drawGrid();
+        if(mode==='basis') return;
+        const ordered=entries.map((v,i)=>({...v,index:i,depth:project(v.v).depth})).sort((a,b)=>b.depth-a.depth);
+        for(const item of ordered){
+          const active=item.index===selected;
+          arrow(O,item.v,item.color,active?4.8:2.6,active?1:.65);
+          const pt=project(item.v);
+          context.beginPath();context.arc(pt.x,pt.y,active?6.6:4.5,0,Math.PI*2);
+          context.fillStyle=item.color;context.fill();
+          context.strokeStyle='white';context.lineWidth=2;context.stroke();
+          label(item.v,item.name,item.color,12,item.index===1?-14:item.index===2?19:-4);
+        }
+        if(mode==='components'){
+          const v=entries[selected].v;
+          const p1=[v[0],0,0],p2=[v[0],v[1],0],p3=[v[0],v[1],v[2]];
+          line(O,p1,'#3274c8',3,[5,5],.95);
+          line(p1,p2,'#e48b48',3,[5,5],.95);
+          line(p2,p3,'#8b5cc4',3,[5,5],.95);
+          line(p3,[v[0],0,0],'#9da8b8',1,[3,4],.5);
+          line(p3,[0,v[1],0],'#9da8b8',1,[3,4],.5);
+          line(p3,[0,0,v[2]],'#9da8b8',1,[3,4],.5);
+          for(const p of [p1,p2]){const P=project(p);context.beginPath();context.arc(P.x,P.y,3.5,0,Math.PI*2);context.fillStyle='#6b7788';context.fill();}
+        }
+      }
+      function resize(){
+        const rect=canvas.getBoundingClientRect();
+        width=rect.width||760;height=rect.height||580;
+        dpr=Math.min(window.devicePixelRatio||1,2);
+        canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);
+        context.setTransform(dpr,0,0,dpr,0,0);
+        draw();
+      }
+      function updateSelection(i){
+        selected=i;
+        const t=entries[i];
+        document.getElementById('embedding-description').innerHTML='<strong>'+t.name+'</strong><br>x = '+t.v[0].toFixed(2)+' b₁ + '+t.v[1].toFixed(2)+' b₂ + '+t.v[2].toFixed(2)+' b₃<br>Coordinates: ['+t.v.map(x=>x.toFixed(2)).join(', ')+']';
+        document.querySelectorAll('#embedding-tokens button').forEach((el,j)=>el.classList.toggle('active',i===j));
+        draw();
+      }
+      document.querySelectorAll('#embedding-tokens button').forEach(el=>el.addEventListener('click',()=>updateSelection(Number(el.dataset.token))));
+      document.querySelectorAll('#embedding-controls button').forEach(el=>el.addEventListener('click',()=>{
+        mode=el.dataset.mode;
+        document.querySelectorAll('#embedding-controls button').forEach(b=>b.classList.toggle('active',b===el));
+        draw();
+      }));
+      document.getElementById('embedding-reset').addEventListener('click',()=>{yaw=-.75;elev=.46;zoom=1;draw();});
+      let dragging=false,lastX=0,lastY=0;
+      canvas.addEventListener('pointerdown',e=>{dragging=true;lastX=e.clientX;lastY=e.clientY;canvas.setPointerCapture(e.pointerId);});
+      canvas.addEventListener('pointermove',e=>{if(!dragging)return;yaw+=(e.clientX-lastX)*.006;elev=Math.max(-1.35,Math.min(1.35,elev+(e.clientY-lastY)*.006));lastX=e.clientX;lastY=e.clientY;draw();});
+      canvas.addEventListener('pointerup',()=>dragging=false);
+      canvas.addEventListener('pointercancel',()=>dragging=false);
+      canvas.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(.65,Math.min(1.8,zoom*Math.exp(-e.deltaY*.001)));draw();},{passive:false});
+      if(window.ResizeObserver)new ResizeObserver(resize).observe(canvas); else window.addEventListener('resize',resize);
+      resize();
+    })();
+
 
     /* =========================================================
 
