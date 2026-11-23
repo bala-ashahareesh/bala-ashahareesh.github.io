@@ -577,7 +577,13 @@
 
 
 
-    <p>When building intuition for understanding Attention mechanism, I like to start from the concept of considering the memory state as an outer product accumulate process where the keys act as an index that decides how the values being updated can be distributed among the columns.</p>
+    <p>When building intuition for understanding the attention mechanism, I like to think of standard self-attention as a divergence from a more natural mathematical progression: starting with a classical outer-product memory accumulation mechanism and gradually arriving at linear attention.</p>
+
+    <p>I bring this up here because the softmax function represents an interesting junction in this journey. From this point, we can either follow the path towards standard softmax self-attention or continue exploring linear attention, eventually leading us towards more advanced architectures such as Gated Delta Networks and Kimi Linear Attention, and further explorations into recurrent state-space models like Mamba.</p>
+
+    <p>Rather than starting with attention as a fully formed mechanism, I want to understand how these ideas emerge from simpler mathematical principles, what limitations motivate each transformation, and why different architectures take different paths.</p>
+
+    <p>So, we begin with the most fundamental building block: <strong>the memory update mechanism.</strong></p>
 
 
 
