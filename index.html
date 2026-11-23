@@ -1,10 +1,3 @@
-Here is the updated code with those specific paragraphs moved to sit exactly between the two examples. 
-
-This creates a great narrative flow: You show the ideal case (Example A), then explain the mathematical ideal (associativity and one-hot selection) and the problem with it (noise/affine), and *then* you show the reality of the problem with concrete numbers (Example B), followed by the graph.
-
-Copy and paste this into your `index.html`:
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -38,6 +31,20 @@ Copy and paste this into your `index.html`:
         h2 { font-size: 1.5rem; color: #444; }
         .subtitle { font-style: italic; color: #666; margin-top: 0; margin-bottom: 2em; }
         
+        /* Intro specific styling */
+        .intro-text {
+            font-size: 1.1em;
+            color: #2c3e50;
+            line-height: 1.7;
+            margin-bottom: 2em;
+        }
+        hr {
+            border: 0;
+            height: 1px;
+            background: #eaeaea;
+            margin: 3em 0;
+        }
+
         a { color: #0366d6; text-decoration: none; }
         a:hover { text-decoration: underline; }
         
@@ -91,6 +98,14 @@ Copy and paste this into your `index.html`:
     <h1>Kernel Optimisation for NPU</h1>
     <p class="subtitle">Mapping Math to Intuition</p>
 
+    <div class="intro-text">
+        <p>In High school, my rebellious teenage phase forced me to believe that generalised conventions and equations were archaic forms of understanding math as they were devoid of any intuition. To me, if anything had to make sense, it needed to be intuitive. But I have grown to realise that despite being a great launcher for building motivation and appreciation for something, it should not be a self made ceiling wherein it prevents you from seeing how this form generalises over multiple domains.</p>
+        
+        <p>And I guess fundamentally, that is what I will try to achieve through this blog. We will use intuition to formulate a theory and then feed it back to the equation itself, and then see how our intuition was a special case or implementation of a more general natural phenomenon.</p>
+    </div>
+
+    <hr>
+
     <h2>Rediscovering SoftMax as a Kernel Function</h2>
     
     <p>When building intuition for understanding Attention mechanism, I like to start from the concept of considering the memory state as an outer product accumulate process where the keys act as an index that decides how the values being updated can be distributed among the columns.</p>
@@ -122,7 +137,7 @@ Copy and paste this into your `index.html`:
 
     <p>As hinted above, now is a good time to put the library analogy to rest. To think of your books as being distributed across different slots such that each slot corresponds to different parts of different books is probably where I would draw the line and say it is a futile exercise to carry the analogy further. Although while typing this out, we could in fact push this further if we rephrase the analogy from referring to single books and towards topics. Now a "slot" or value can be a genre or theme, so that a book can be distributed among them. When we have a key that tells us which book we want, it can be seen as a weighted sum of different values or genres.</p>
 
-    <p>In this analogy: the **Value (\(v\))** is the genre profile (e.g., how much Sci-Fi vs. Romance). The **Key (\(k\))** is the thematic fingerprint or index (e.g., a mix of "Space" and "Castle"). The **Memory (\(M\))** is the accumulated library.</p>
+    <p>In this analogy: the <strong>Value (\(v\))</strong> is the genre profile (e.g., how much Sci-Fi vs. Romance). The <strong>Key (\(k\))</strong> is the thematic fingerprint or index (e.g., a mix of "Space" and "Castle"). The <strong>Memory (\(M\))** is the accumulated library.</p>
 
     <p>Mathematically, if we have a value vector \(v \in \mathbb{R}^m\) and a distributed key vector \(k \in \mathbb{R}^n\), the memory update is an outer product \(v k^T\) (an \(m \times n\) matrix) accumulated into the memory state \(M\):</p>
     
@@ -213,4 +228,3 @@ Copy and paste this into your `index.html`:
 
 </body>
 </html>
-```
