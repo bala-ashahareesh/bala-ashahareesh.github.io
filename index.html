@@ -451,6 +451,21 @@
         .norm-temp-control { margin-top:1.25em; background:#f7f9fb; padding:12px 15px; border-radius:6px; }
         .norm-temp-hints { display:flex; justify-content:space-between; font-size:11px; color:#66707a; }
 
+        /* key/query normalisation demo */
+        .norm-key-wrap { display:flex; flex-wrap:wrap; gap:18px; align-items:flex-start; }
+        .norm-key-left { flex:0 1 360px; max-width:100%; margin:0 auto; text-align:center; }
+        .norm-key-right { flex:1 1 300px; min-width:270px; }
+        .norm-key-space { width:100%; max-width:360px; overflow:visible; background:#fff; border:1px solid #eef1f4; border-radius:8px; }
+        .norm-key-note { background:#f7f9fb; border-left:4px solid #2da44e; padding:.75em .9em; border-radius:6px; margin:.9em 0; font-size:.95em; line-height:1.55; color:#334155; }
+        .norm-key-formula { background:#fafbfc; border:1px solid #e6e9ed; border-radius:6px; padding:.7em .85em; margin-top:.8em; font-size:13px; line-height:1.55; }
+        .norm-key-stat { font:12px/1.45 "SFMono-Regular", Consolas, Menlo, monospace; color:#445; margin-top:.45em; text-align:left; display:inline-block; background:#fafbfc; border:1px solid #e6e9ed; border-radius:6px; padding:.55em .7em; }
+        .energy-bars { margin-top:.8em; }
+        .energy-bars .brow { margin:8px 0; }
+        .norm-key-space line, .norm-key-space circle, .norm-key-space text { transition: opacity .45s ease, stroke-width .45s ease; }
+        .norm-key-space { box-shadow: 0 8px 24px rgba(15,23,42,.06); }
+        .example-mini-title { margin:0 0 .5em; font-size:1rem; color:#243447; }
+        .norm-key-bridge { margin:.75em 0 0; color:#445; font-size:.95em; }
+
         /* embedding / feature space intro */
         /* Spacious, self-contained perspective 3D embedding scene */
         .embedding-showcase { margin: 2em 0; padding: 22px; border: 1px solid #e1e5ea; border-radius: 14px; background: #fff; box-shadow: 0 8px 28px rgba(25,38,59,.045); }
@@ -482,6 +497,46 @@
         .embedding-list button.active {border-color:#a6c7fa;background:#f2f7ff;}
         .embedding-note {margin-top:17px; padding:13px 15px; background:#f8fafc; border-left:3px solid #64748b; color:#475467; border-radius:6px; font-size:.93em;}
         @media (max-width:650px) { .embedding-showcase{padding:12px;} .embedding-canvas-shell{height:440px;min-height:360px;} .embedding-key{grid-template-columns:1fr;} .embedding-detail{grid-template-columns:1fr;} .embedding-corner{top:9px;left:10px;} .embedding-hint{right:8px;bottom:8px;font-size:10px;} }
+    
+        /* Example A.1: paired RMSNorm geometry */
+        #demo-keynorm { margin:1.2em 0 0.4em; }
+        .rms-two-layout { display:flex; flex-wrap:wrap; align-items:flex-start; gap:22px; }
+        .rms-two-plot { flex:1.5 1 430px; min-width:0; }
+        .rms-two-detail { flex:1 1 240px; min-width:215px; text-align:left; padding-top:4px; }
+        #rms-two-svg { display:block; width:100%; background:radial-gradient(ellipse at 50% 45%,#ffffff 32%,#f9fbfe 100%); border:1px solid #e4e9ef; border-radius:12px; box-shadow:0 6px 22px rgba(27,50,80,.045); }
+        #rms-two-svg .rms-axis-label { font:12px system-ui,sans-serif; fill:#8995a2; }
+        #rms-two-svg .rms-vector-label { font:600 17px system-ui,sans-serif; }
+        #rms-two-svg .rms-ring-label { font:600 13px system-ui,sans-serif; fill:#665db2; }
+        #rms-two-svg #rms-circle, #rms-two-svg #rms-radius-text, #rms-two-svg #rms-projections, #rms-two-svg #rms-query-layer, #rms-two-svg #rms-right-angle {transition:opacity .55s ease;}
+        .rms-plot-legend { display:flex; gap:14px; flex-wrap:wrap; justify-content:center; margin:.55em 0 0; color:#687586; font:11.5px system-ui,sans-serif; }
+        .rms-plot-legend span { display:inline-flex; align-items:center; gap:5px; }
+        .rms-plot-legend i { width:8px; height:8px; border-radius:50%; }
+        .rms-two-status { padding:15px; border-radius:9px; border-left:4px solid #7f8de5; background:#f7f9fe; font:14px/1.55 system-ui,sans-serif; color:#334155; }
+        .rms-two-status strong { font-size:14px; color:#243447; }
+        .rms-two-status p {margin:.5em 0 0; }
+        .rms-energy-card { border:1px solid #e8edf1; border-radius:9px; padding:14px; margin-top:13px; font:12px/1.5 system-ui,sans-serif; }
+        .rms-energy-card>b { display:block; margin-bottom:10px; color:#334155; }
+        .rms-energy-name { font-weight:600; color:#596678; margin:10px 0 5px; }
+        .rms-energy-track { display:flex; width:100%; height:16px; overflow:hidden; background:#f0f3f7; border-radius:5px; }
+        .rms-energy-track>div {height:100%; transition:width .65s cubic-bezier(.19,1,.22,1);}
+        .rms-energy-nums {font:11px/1.5 Consolas,monospace; color:#718096; margin-top:4px; transition:opacity .4s;}
+        .rms-two-math { margin-top:14px; background:#fafbfc; border:1px solid #edf0f4; border-radius:7px; padding:12px; font:12px/1.5 Consolas,monospace; color:#334155; }
+        .rms-two-footnote { color:#75808e; font:12px/1.5 system-ui,sans-serif; margin-top:12px; }
+        @media (max-width:650px) { .rms-two-plot {flex-basis:100%;} .rms-two-detail {flex-basis:100%;} }
+
+
+        /* retrieval-score normalisation walkthrough */
+        .score-w-layout { display:flex; flex-wrap:wrap; gap:18px; align-items:stretch; }
+        .score-w-panel { flex:1 1 285px; min-width:245px; padding:18px; border-radius:10px; border:1px solid #e8ecf0; background:#fff; }
+        .score-w-panel .ptitle { font-size:12px; margin-bottom:16px; }
+        .score-w-bar { display:grid; grid-template-columns:65px minmax(0,1fr) 60px; gap:9px; align-items:center; margin:15px 0; font:13px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+        .score-w-track { height:24px; background:#f0f2f6; border-radius:5px; overflow:hidden; }
+        .score-w-fill { height:100%; border-radius:5px; transition: width .7s cubic-bezier(.2,.7,.2,1); }
+        .score-w-total { border-top:1px solid #e9edf1; margin-top:17px; padding-top:14px; font:13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; color:#455469; }
+        .score-w-equation { min-height:65px; font:14px/1.65 Consolas,monospace; color:#263449; }
+        .score-w-vector { margin:15px 0; font:14px/1.65 Consolas,monospace; border-radius:7px; background:#f7f9fc; padding:13px; min-height:50px; }
+        .score-w-insight { border-left:3px solid #4c9be8; border-radius:5px; background:#f6f8fb; font-size:13px; line-height:1.6; padding:12px; color:#354156; }
+
     </style>
 
 </head>
@@ -770,11 +825,54 @@
         </div></div>
     </div>
 
+
+
+    <div class="example-box">
+        <div class="example-title">Example A.1: Normalising Two Keys and a Query</div>
+        <p>Since a key acts as an index, moving from one-hot encoding to superposition makes more sense if we imagine the key vector as <em>distributing its influence across the dimensions</em>. In the outer-product update \(vk^T\), the signed key coordinates prescribe how much of the value is written into each column.</p>
+
+        <p>Let us return to <strong>both keys</strong> from the orthogonal superposition example: \(k_1=[1,0.1]^T\) and \(k_2=[-0.1,1]^T\). Their orientations are different, yet both are just a little longer than one unit. RMS normalisation gives the two indexing directions a common scale.</p>
+
+        <div class="math-block">
+            \[
+            \operatorname{RMS}(x)=\sqrt{\frac{x_1^2+x_2^2}{2}},
+            \qquad \widetilde{x}=\frac{x}{\operatorname{RMS}(x)}.
+            \]
+        </div>
+        <p>For either key, \(\operatorname{RMS}(k_i)=\sqrt{0.505}\approx0.7106\). Thus:</p>
+        <div class="math-block">
+            \[
+            \widetilde{k}_1\approx\begin{bmatrix}1.407\\0.141\end{bmatrix},
+            \qquad
+            \widetilde{k}_2\approx\begin{bmatrix}-0.141\\1.407\end{bmatrix}.
+            \]
+        </div>
+        <p>Their directions and orthogonality do not change. Both endpoints move radially onto the circle \(\|x\|_2=\sqrt{2}\), because RMSNorm without learned gain or epsilon sets \(\sum_i\widetilde{x}_i^2=2\) in two dimensions.</p>
+
+        <div class="demo" id="demo-keynorm">
+            <div class="demo-title">Animation: Two indexing directions, one RMSNorm circle</div>
+            <div class="demo-stage"></div>
+            <div class="demo-caption"></div>
+            <div class="demo-controls"></div>
+        </div>
+
+        <p class="norm-key-bridge"><strong>What exactly is being distributed?</strong> A memory update uses the <em>signed coordinates</em> of the key, including the negative first component of \(k_2\). When we speak of its geometric “energy,” we mean the <em>squared components</em> \(k_{ij}^2/\|k_i\|_2^2\). In this example, \(k_1\) has about 99% of its squared-coordinate energy along the first axis, while \(k_2\) has about 99% along the second. RMSNorm standardises their lengths; it does not turn their coordinates into probabilities.</p>
+    </div>
+    <p class="norm-key-bridge"><strong>Continuing with normalised keys.</strong> In the next animation, we rebuild the same memory using \(\widetilde{k}_1\) and \(\widetilde{k}_2\), and query it using \(\widetilde{q}=\widetilde{k}_1\). The directions and orthogonality are unchanged, but because RMSNorm gives each 2D vector squared length \(2\), the target retrieval coefficient becomes \(2\) rather than \(1.01\). This is a <em>change of scale, not a change of which book wins</em>.</p>
+
+    <div class="math-block">
+    \[
+    \widetilde M=\sum_{i=1}^{2}v_i\widetilde{k}_i^T
+    =\sqrt{\frac{2}{1.01}}\begin{bmatrix}1&0.1\\-0.1&1\end{bmatrix},
+    \qquad \widetilde M\widetilde q = 2v_1+0v_2.
+    \]
+    </div>
+
     <!-- DEMO 2: SUPERPOSITION ANIMATION -->
 
     <div class="demo" id="demo2">
 
-        <div class="demo-title">Animation: superposition &mdash; a key spreads its value over the columns</div>
+        <div class="demo-title">Animation: superposition using RMS-normalised keys and query</div>
 
         <div class="demo-stage"></div>
 
@@ -794,21 +892,54 @@
 
 
 
-    <h2>Where the Dot Product Falls Short</h2>
+
+    <h2>Normalising Retrieval Scores into Relative Weights</h2>
+    <p>There are now <strong>two distinct forms of normalisation</strong> in our story. RMSNorm rescales a <em>key or query vector</em> so that its length is controlled. What we need next is different: once a query produces scores against many memories, how do we turn those scores into a <em>relative share of the output</em>?</p>
+    <p>From the outer-product memory, we have \(Mq=\sum_i s_i v_i\), where \(s_i=q^T k_i\). This is already a weighted sum, but the scores do not automatically represent percentages. Suppose for a moment that every score is nonnegative and their total \(Z=\sum_i s_i\) is positive. Then we can divide each score by the total:</p>
+    <div class="math-block">
+      \[s_i=q^Tk_i,\qquad Z=\sum_j s_j,\qquad w_i=\frac{s_i}{Z},\qquad \sum_i w_i=1.\]
+      \[\bar y=\sum_i w_i v_i=\frac{Mq}{Z}.\]
+    </div>
+    <p>Now each \(w_i\) is a fraction of the total score: <strong>multiply by 100 to read it as a percentage</strong>. This does not change which memory has the larger score, and it does not remove unwanted contributions. It changes the overall scale so that we can interpret the result as an average of the values.</p>
+
+    <div class="demo" id="demo-score-norm">
+      <div class="demo-title">Animation: raw retrieval scores → fractions → a weighted average</div>
+      <div class="demo-stage">
+        <div class="score-w-layout">
+          <div class="score-w-panel">
+            <div class="ptitle" id="score-w-heading">Raw retrieval scores</div>
+            <div id="score-w-bars"></div>
+            <div class="score-w-total" id="score-w-total"></div>
+          </div>
+          <div class="score-w-panel">
+            <div class="ptitle">The output is a combination of stored values</div>
+            <div class="score-w-equation" id="score-w-equation"></div>
+            <div class="score-w-vector" id="score-w-vector"></div>
+            <div class="score-w-insight" id="score-w-insight"></div>
+          </div>
+        </div>
+      </div>
+      <div class="demo-caption"></div>
+      <div class="demo-controls"></div>
+    </div>
+    <p class="norm-takeaway"><strong>The limitation:</strong> the percentage interpretation works in this simple form only for <em>nonnegative scores with a positive total</em>. Dot products can be negative, and dividing by a sum can then produce negative weights or even be undefined. More importantly, it does <strong>nothing to separate nearly equal scores</strong>. We will encounter that failure next, then look for a kernel that can address it.</p>
+
+    <h2>When Keys Overlap: The Limits of Score Normalisation</h2>
 
 
 
-    <p>Look closely at what retrieval is actually doing. Every stored item gets a score from the query, and the output is a score-weighted sum of all the values: \(M q = \sum_i \kappa(q, k_i)\, v_i\). Here \(\kappa(q,k) = q^T k\), so the dot product is playing the role of a <strong>kernel</strong>: a similarity function that decides how much each memory is allowed to speak. Everything depends on how well that kernel behaves as a selector, and this is where the cracks start to show.</p>
+    <p>Normalising the total score makes the sum easier to interpret, but it cannot tell whether that score came from the memory we wanted or from an overlapping neighbour. For the dot-product kernel \(\kappa(q,k)=q^Tk\), the actual retrieval remains a weighted combination of <em>all</em> stored values. What happens when our key directions are not orthogonal?</p>
 
 
 
-    <p>Unfortunately, the ensuing issue here is that even if the score is high for the desired value, the sum of undesired scores can still make the result noisy. This can be seen if we view it as an affine equation.</p>
+    <p>Even if the correct memory has the highest score, the other scores may remain large. Their value contributions interfere with the desired result. This is visible in the following counterexample and its affine-noise interpretation.</p>
 
 
 
     <div class="example-box">
 
         <div class="example-title">Example B: The Reality (Crosstalk &amp; Noise)</div>
+        <p><em>For this next counterexample, we return temporarily to raw coordinates so that the overlap parameter α can be varied directly. The crosstalk phenomenon remains with normalised directions; normalising alone cannot remove overlap.</em></p>
 
         <p>In reality, thematic fingerprints overlap heavily. We cannot always keep the keys orthogonal. Let's use overlapping keys:</p>
         <div class="alpha-note"><strong>What is α?</strong> We use α as a knob for <em>cross-coordinate overlap</em>: \(k_1=[1,\alpha]^T\), \(k_2=[\alpha,1]^T\). At \(\alpha=0\) the keys are orthogonal. As α grows, each key borrows more of the other coordinate and the two basis directions lean together. At \(\alpha=1\) they are identical. α is <em>not</em> the cosine similarity: here \(\cos\theta=\frac{2\alpha}{1+\alpha^2}\). Example B uses \(\alpha=0.5\), so \(\cos\theta=0.8\).</div>
@@ -829,7 +960,7 @@
 
         <p>Score for Book 2 (\(k_2\)): \(q^T k_2 = (1 \times 0.5) + (0.5 \times 1) = 1.0\)</p>
 
-        <p>Book 1 does win the contest, <em>1.25 vs 1.0</em>. But the scores are so close that Book 2 still gets almost the same say. When we retrieve \(M q = 1.25 v_1 + 1.0 v_2 = \begin{bmatrix} 1.10 \\ 1.15 \end{bmatrix}\), the answer reads as slightly more Romance than Sci-Fi: the retrieval has been taken over by the book we did not ask for.</p>
+        <p>Book 1 does win, <em>1.25 vs 1.0</em>. Dividing by their sum produces relative weights of <strong>55.6% and 44.4%</strong>. But Book 2 still gets almost as much influence. Indeed, \(Mq=1.25v_1+1.0v_2=[1.10,1.15]^T\) favours Romance. Scaling by \(1/2.25\) produces \([0.489,0.511]^T\): the output is now an average, but it still favours Romance. The noise has not disappeared.</p>
 
     </div>
 
@@ -859,11 +990,11 @@
 
         <li><strong>Losers still contribute, and they add up.</strong> Every undesired item leaves a small non-zero weight. Individually harmless, but summed over many items (or one heavily overlapping item) they can outweigh the desired value.</li>
 
-        <li><strong>The scores are unbounded and unnormalised.</strong> They can be large, small, or even negative, so they are not a clean set of weights that add to 1.</li>
+        <li><strong>Simple score normalisation does not sharpen.</strong> Dividing each positive score by their sum changes the total scale, but not their relative ratios. A weaker match can still contribute almost as much as the strongest match.</li>
 
     </ul>
 
-    <p>A better kernel would need to widen the gap between the winner and the rest, and turn the scores into proper weights. Hold on to that thought.</p>
+    <p>Even after turning these scores into fractions, the <em>relative interference</em> remains. We therefore need something more than a shared denominator: a scoring transformation that distinguishes close matches before assigning their final weights.</p>
 
 
 
@@ -975,73 +1106,14 @@
 
 
 
-    <h2>The Need for Normalisation</h2>
-
-    <p>There is another failure mode hiding inside the raw dot product. It does not just care about <em>direction</em>; it also cares about <em>length</em>. This means that if several similar memory updates keep writing along a related direction, the corresponding key vectors can become very large. Later, when we query for something else, those large vectors can still produce big scores simply because they are long, not because they are the best match.</p>
-
-    <p>Intuitively: a cluster of similar memories can become <em>too loud</em>. Even if the query points more cleanly toward the book we actually want, the long noisy keys may still shout over it.</p>
-
-    <div class="example-box">
-        <div class="example-title">Example C: Why raw magnitude is dangerous</div>
-        <p>Suppose Book 1 and Book 2 are a noisy Sci-Fi cluster whose keys have grown large because they keep updating nearby directions in memory:</p>
-        <p><strong>Book 1:</strong> \(k_1 = [1.4, 1.0]^T\), \(v_1\) is mostly Sci-Fi.<br>
-        <strong>Book 2:</strong> \(k_2 = [1.2, 0.7]^T\), \(v_2\) is also mostly Sci-Fi.<br>
-        <strong>Book 3:</strong> \(k_3 = [0.2, 1.0]^T\), \(v_3\) is Romance-heavy.</p>
-        <p>Now we query for Book 3, so \(q = k_3 = [0.2,1.0]^T\). Book 3 is the best directional match, but its key is much shorter. Raw dot products therefore reward length as well as alignment:</p>
-        <div class="math-block" style="margin: 0.7em 0 0.4em;">
-            \[
-            q^T k_1 = 1.28,
-            \qquad
-            q^T k_2 = 0.94,
-            \qquad
-            q^T k_3 = 1.04.
-            \]
-        </div>
-        <p>So the wrong book, Book 1, gets the highest score simply because its key is longer. The retrieval is being biased by magnitude.</p>
-    </div>
-
-
-    <!-- Interactive walkthrough: data and formulas are kept in the JS below. -->
-    <div class="demo" id="demo-normalisation">
-      <div class="demo-title">Animation: loud keys → unit vectors → the remaining ambiguity</div>
-      <div class="demo-stage">
-        <div class="norm-live-layout">
-          <div class="norm-figure">
-            <svg id="norm-live-svg" viewBox="0 0 360 330" role="img" aria-label="Cartesian graph of key vectors and the query, shrinking onto the unit circle"></svg>
-            <div class="basis-explainer">Faint gray lattice = Cartesian coordinates · purple ring = unit norm · green dashed vector = query</div>
-          </div>
-          <div class="norm-live-right">
-            <div class="ptitle" id="norm-score-title">Query scores</div>
-            <div id="norm-score-rows"></div>
-            <div class="norm-live-verdict" id="norm-verdict"></div>
-            <div class="norm-live-note" id="norm-live-note"></div>
-          </div>
-        </div>
-      </div>
-      <div class="demo-caption"></div>
-      <div class="demo-controls"></div>
-    </div>
-
-    <div class="norm-formula">
-      Divide each nonzero vector by its Euclidean norm:
-      \[
-      \hat{k}_i=\frac{k_i}{\|k_i\|_2},\qquad
-      \hat q=\frac{q}{\|q\|_2},\qquad
-      \hat q^T\hat k_i=\cos\theta_i.
-      \]
-      The \(\sqrt{2}\) reference is correct for \([1,1]^T\): its length is \(\sqrt{1^2+1^2}=\sqrt2\), but <strong>the normalised circle has radius 1</strong>, not \(\sqrt2\). Normalisation maps \([1,1]^T\) to \([1/\sqrt2,1/\sqrt2]^T\). The demo uses the same unit circle for all normalised keys.
-    </div>
-
-    <div class="norm-takeaway"><strong>What normalisation accomplishes:</strong> when we compare unit-normalised keys and queries, long keys no longer win simply by being long. But a cosine score by itself is still a soft vote, not a selector, and the weights are not yet a probability distribution.</div>
-
     <h2>The Need to Differentiate Nearby Scores</h2>
 
     <!-- EDITABLE EXPLANATION START: revise these paragraphs in your own voice. -->
     <div class="example-box" id="editable-softmax-transition">
       <div class="example-title">Draft explanation — refine this in your own words</div>
-      <p>We have solved one problem, but the library still has a subtle issue. Imagine asking for a very specific book while several others discuss almost the same topic. Normalisation has made all their thematic fingerprints equally long. That prevents a very large vector from winning just because of its magnitude, but it cannot force two similar directions to become far apart.</p>
-      <p>For example, our query might score three books at <strong>1.00, 0.97, and 0.94</strong>. The first is a perfect directional match, yet the other two are almost as convincing. If we feed these cosine scores straight into a weighted sum, the distractors retain nearly the same influence as the memory we actually asked for. The ranking is correct, but the retrieval is still blurry.</p>
-      <p>What we need next is not another change of coordinates. We need a way to <strong>amplify relative score differences</strong>: reward the slightly better match disproportionately, while keeping the weaker matches present but quieter. We also want nonnegative weights that sum to one, so that the total amount of attention stays controlled.</p>
+      <p>We have made retrieval scores interpretable as relative shares when they are nonnegative. But Example B reveals the next limitation: the correct memory can receive only a slightly larger share than an irrelevant neighbour. Dividing all scores by the same total cannot change their ratios or resolve that ambiguity.</p>
+      <p>For example, imagine three books receiving similarity scores <strong>1.00, 0.97, and 0.94</strong>. The first is the best match, yet dividing by their sum gives approximately <strong>34.4%, 33.3%, and 32.3%</strong>. The ranking is correct, but the retrieval is still blurry: almost everyone gets the same vote.</p>
+      <p>What we need is not another change of vector length, nor simply another common denominator. We need a new <strong>scoring kernel or transformation</strong> that can increase the relative contrast between competing memories, then produce nonnegative weights that sum to one.</p>
       <p>That motivates a new scoring rule: exponentiate the scores, and divide by their total. The exponential makes a score gap count multiplicatively; the denominator turns the results into a distribution. We arrive at <strong>softmax</strong> not because it is a magical lookup function, but because we want a tunable, smooth competition among memories.</p>
       <p><em>Bridge to the next section:</em> a smooth competition is not yet a perfect one-hot lookup. We can make it sharper, but the choice of sharpness matters: a very sharp distribution can be decisive and brittle, while a soft one can preserve useful ambiguity.</p>
     </div>
@@ -1049,7 +1121,7 @@
 
     <div class="math-block">
       \[
-      s_i=\hat q^T\hat k_i,\qquad
+      s_i=\kappa(q,k_i),\qquad
       w_i(\tau)=\frac{e^{s_i/\tau}}{\sum_j e^{s_j/\tau}},\quad \tau>0.
       \]
       <span style="font-size:.9em">Here \(\tau\) is the temperature. Smaller \(\tau\) produces sharper competition; larger \(\tau\) keeps the weights more even.</span>
@@ -1057,9 +1129,9 @@
 
     <div class="demo" id="demo-softmax-preview">
       <div class="demo-title">Interactive preview: why nearby scores need differentiation</div>
-      <p style="font-size:.93em;color:#4b5563">Three unit-vector cosine scores: <strong>1.00 · 0.97 · 0.94</strong>. The left bars are the original scores, and the right bars show the softmax weights. Drag the temperature to see how a small score gap becomes a larger or smaller difference in influence.</p>
+      <p style="font-size:.93em;color:#4b5563">Three closely spaced similarity scores: <strong>1.00 · 0.97 · 0.94</strong>. The left bars show the original scores; the right show softmax weights. Drag the temperature to see how a small score gap becomes a larger or smaller difference in influence.</p>
       <div class="norm-compare">
-        <div class="norm-column"><div class="ptitle">Cosine similarity (not probabilities)</div><div id="cosine-bar-list"></div></div>
+        <div class="norm-column"><div class="ptitle">Original similarity scores (not percentages)</div><div id="cosine-bar-list"></div></div>
         <div class="norm-column"><div class="ptitle">Softmax attention weights (sum = 100%)</div><div id="softmax-bar-list"></div></div>
       </div>
       <div class="norm-temp-control">
@@ -1068,7 +1140,7 @@
         <div class="norm-temp-hints"><span>Lower → sharper</span><span>Higher → more even</span></div>
       </div>
       <div class="norm-live-verdict" id="softmax-summary" aria-live="polite"></div>
-      <p class="basis-explainer">This preview applies softmax to cosine scores as a teaching example. Standard transformer attention generally uses scaled query–key dot products, not necessarily L2-normalised keys and queries. Softmax sharpens and normalises <em>weights</em>; L2 normalisation removes vector-magnitude effects. They solve different problems.</p>
+      <p class="basis-explainer">Here we apply softmax to illustrative similarity scores. Unlike dividing raw scores by their sum, the exponential converts arbitrary real scores into positive quantities before normalising. Standard transformer attention uses scaled query–key dot products as its softmax inputs; our earlier RMSNorm illustration was a separate lesson about vector scale.</p>
     </div>
 
 
@@ -1528,7 +1600,180 @@
 
 
 
+    
     /* =========================================================
+       DEMO 1.5: Orthogonal keys -> RMSNorm radius sqrt(2)
+       ========================================================= */
+    (function () {
+      const root = document.getElementById('demo-keynorm');
+      if (!root) return;
+      const stage = root.querySelector('.demo-stage');
+      const keys = [[1, .1], [-.1, 1]];
+      const norm = Math.sqrt(1.01);
+      const rms = Math.sqrt(1.01 / 2);
+      const normalized = keys.map(k => k.map(v => v / rms));
+      const energy = keys.map(k => k.map(v => 100 * v * v / 1.01));
+      const ox = 275, oy = 245, scale = 140;
+      const toXY = p => [ox + p[0] * scale, oy - p[1] * scale];
+
+      stage.innerHTML = `
+        <div class="rms-two-layout">
+          <div class="rms-two-plot">
+            <div class="ptitle">Two orthogonal indexing directions · same geometric scale</div>
+            <svg id="rms-two-svg" viewBox="0 0 550 490" role="img" aria-label="Cartesian grid with two orthogonal key vectors expanding toward the RMSNorm radius square root of two circle">
+              <defs>
+                <marker id="rms-blue-tip" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0 0L7 3.5L0 7Z" fill="#3b82f6"/></marker>
+                <marker id="rms-red-tip" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0 0L7 3.5L0 7Z" fill="#e86e66"/></marker>
+                <marker id="rms-gold-tip" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0 0L7 3.5L0 7Z" fill="#c79022"/></marker>
+              </defs>
+              <g id="rms-grid" stroke="#e9edf2" stroke-width="1"></g>
+              <g stroke="#a5afbb" stroke-width="1.6">
+                <line x1="23" y1="245" x2="528" y2="245"/>
+                <line x1="275" y1="468" x2="275" y2="20"/>
+              </g>
+              <text x="510" y="234" class="rms-axis-label">e₁</text>
+              <text x="286" y="29" class="rms-axis-label">e₂</text>
+              <text x="282" y="261" class="rms-axis-label">0</text>
+              <circle id="rms-circle" cx="275" cy="245" r="198" fill="none" stroke="#8e88d8" stroke-width="2.2" stroke-dasharray="7 6" opacity="0"/>
+              <g id="rms-radius-text" opacity="0"><rect x="322" y="40" width="189" height="32" rx="7" fill="#f5f3ff"/><text x="331" y="61" class="rms-ring-label">RMSNorm: ‖x‖₂ = √2</text></g>
+              <g id="rms-projections" opacity="0" stroke-dasharray="5 5" stroke-width="1.8">
+                <line id="rms-proj-1a" stroke="#3b82f6"/><line id="rms-proj-1b" stroke="#3b82f6"/>
+                <line id="rms-proj-2a" stroke="#e86e66"/><line id="rms-proj-2b" stroke="#e86e66"/>
+              </g>
+              <path id="rms-right-angle" d="" fill="none" stroke="#a29ac6" stroke-width="1.8" opacity="0"/>
+              <line id="rms-key-1" x1="275" y1="245" x2="275" y2="245" stroke="#3b82f6" stroke-width="4.5" stroke-linecap="round" marker-end="url(#rms-blue-tip)"/>
+              <line id="rms-key-2" x1="275" y1="245" x2="275" y2="245" stroke="#e86e66" stroke-width="4.5" stroke-linecap="round" marker-end="url(#rms-red-tip)"/>
+              <circle id="rms-end-1" r="5" fill="#3b82f6"/><circle id="rms-end-2" r="5" fill="#e86e66"/>
+              <text id="rms-label-1" class="rms-vector-label" fill="#2563eb">k₁</text>
+              <text id="rms-label-2" class="rms-vector-label" fill="#c85b54">k₂</text>
+              <g id="rms-query-layer" opacity="0">
+                <line id="rms-query" stroke="#c79022" stroke-width="3" stroke-dasharray="5 5" marker-end="url(#rms-gold-tip)"/>
+                <text id="rms-query-label" fill="#ab7715" class="rms-vector-label">q̃ = k̃₁</text>
+              </g>
+            </svg>
+            <div class="rms-plot-legend"><span><i style="background:#3b82f6"></i>Key 1</span><span><i style="background:#e86e66"></i>Key 2</span><span><i style="background:#c79022"></i>Query (offset for visibility)</span></div>
+          </div>
+          <div class="rms-two-detail">
+            <div class="ptitle">Same directions, standardised lengths</div>
+            <div id="rms-two-status" class="rms-two-status"></div>
+            <div class="rms-energy-card">
+              <b>Squared-coordinate energy shares</b>
+              <div class="rms-energy-name">Key 1 · mostly e₁</div>
+              <div class="rms-energy-track"><div id="rms-energy-1a" style="background:#3b82f6"></div><div id="rms-energy-1b" style="background:#b5d5fe"></div></div>
+              <div class="rms-energy-nums" id="rms-energy-nums-1"></div>
+              <div class="rms-energy-name">Key 2 · mostly e₂</div>
+              <div class="rms-energy-track"><div id="rms-energy-2a" style="background:#efb0aa"></div><div id="rms-energy-2b" style="background:#e86e66"></div></div>
+              <div class="rms-energy-nums" id="rms-energy-nums-2"></div>
+            </div>
+            <div class="rms-two-math" id="rms-two-math"></div>
+            <p class="rms-two-footnote">The bars show squared magnitudes for the geometric intuition; the actual memory write uses the signed key coordinates.</p>
+          </div>
+        </div>`;
+
+      const find = id => stage.querySelector('#' + id);
+      const line = (el, a, b) => {
+        el.setAttribute('x1', a[0]); el.setAttribute('y1', a[1]);
+        el.setAttribute('x2', b[0]); el.setAttribute('y2', b[1]);
+      };
+      const grid = find('rms-grid');
+      let gridHTML = '';
+      for (let x=65; x<=485; x+=35) gridHTML += `<line x1="${x}" y1="28" x2="${x}" y2="460"/>`;
+      for (let y=35; y<=455; y+=35) gridHTML += `<line x1="28" y1="${y}" x2="520" y2="${y}"/>`;
+      grid.innerHTML = gridHTML;
+
+      const captions = [
+        '<b>1 / 6 — Start with two keys.</b> Blue k₁ = [1, 0.1] and coral k₂ = [−0.1, 1]. They are perpendicular because their dot product is zero.',
+        '<b>2 / 6 — Reveal their coordinates.</b> The dashed projections show how each key decomposes into the two independent axes. Key 2 has a small negative first component.',
+        '<b>3 / 6 — Compare energy shares.</b> Squaring the coordinates shows that roughly 99% of key 1’s squared magnitude lies along e₁, whereas roughly 99% of key 2’s lies along e₂.',
+        '<b>4 / 6 — Draw the target circle.</b> RMSNorm in 2D sets ‖x‖₂ = √2. The same circle is the destination for both vectors, no matter which direction they point.',
+        '<b>5 / 6 — Normalise both keys.</b> Both endpoints move outward along their original rays to the RMSNorm circle. The vectors remain orthogonal; only their lengths change.',
+        '<b>6 / 6 — Add the normalised query.</b> A query in key 1’s direction is normalised onto the same circle. Its orange dashed line is shifted slightly on-screen so it stays visible, but mathematically q̃ = k̃₁.'
+      ];
+
+      const ease = t => 1 - Math.pow(1-t,3);
+      const lerp = (a,b,t) => a + (b-a)*t;
+      let activeFrame = null, previousScale = 1;
+      const redraw = factor => {
+        for (let i=0;i<2;i++) {
+          const v = keys[i].map(x => x*factor), xy = toXY(v);
+          const id = i+1;
+          line(find('rms-key-'+id), [ox,oy], xy);
+          find('rms-end-'+id).setAttribute('cx',xy[0]);
+          find('rms-end-'+id).setAttribute('cy',xy[1]);
+          const lab = find('rms-label-'+id);
+          lab.textContent = factor>1.1 ? 'k̃'+(id===1?'₁':'₂') : 'k'+(id===1?'₁':'₂');
+          lab.setAttribute('x',xy[0]+(i===0?12:-26));
+          lab.setAttribute('y',xy[1]+(i===0?-14:-12));
+          line(find('rms-proj-'+id+'a'),[xy[0],oy],xy);
+          line(find('rms-proj-'+id+'b'),[ox,xy[1]],xy);
+        }
+        const a=toXY(keys[0].map(x=>x*factor));
+        const b=toXY(keys[1].map(x=>x*factor));
+        const r=22, ux=[(a[0]-ox)/Math.hypot(a[0]-ox,a[1]-oy),(a[1]-oy)/Math.hypot(a[0]-ox,a[1]-oy)];
+        const vx=[(b[0]-ox)/Math.hypot(b[0]-ox,b[1]-oy),(b[1]-oy)/Math.hypot(b[0]-ox,b[1]-oy)];
+        const x=ox+ux[0]*r,y=oy+ux[1]*r;
+        find('rms-right-angle').setAttribute('d',`M${x},${y} L${x+vx[0]*r},${y+vx[1]*r} L${ox+vx[0]*r},${oy+vx[1]*r}`);
+      };
+      const setStatus = (heading, body) => find('rms-two-status').innerHTML = `<strong>${heading}</strong><p>${body}</p>`;
+      const show = (id,v)=>{ find(id).style.opacity = v ? '1':'0'; };
+      const energyWidths = (el1,el2,arr)=>{el1.style.width=arr[0].toFixed(2)+'%';el2.style.width=arr[1].toFixed(2)+'%';};
+      function render(s){
+        const targetScale = s>=4 ? 1/rms : 1;
+        if(activeFrame!==null) cancelAnimationFrame(activeFrame);
+        const startScale=previousScale, t0=performance.now();
+        if(Math.abs(startScale-targetScale)>1e-6){
+          const tick=now=>{
+            const t=Math.min(1,(now-t0)/860);
+            redraw(lerp(startScale,targetScale,ease(t)));
+            if(t<1) activeFrame=requestAnimationFrame(tick);
+            else activeFrame=null;
+          };
+          activeFrame=requestAnimationFrame(tick);
+        } else redraw(targetScale);
+        previousScale=targetScale;
+
+        show('rms-projections',s>=1);
+        show('rms-right-angle',s>=1);
+        show('rms-circle',s>=3);
+        show('rms-radius-text',s>=3);
+        show('rms-query-layer',s>=5);
+        // q̃ has the identical mathematical endpoint; displace the visible overlay by 8 px.
+        const qEnd=toXY(normalized[0]);
+        line(find('rms-query'),[ox+8,oy+9],[qEnd[0]+8,qEnd[1]+9]);
+        find('rms-query-label').setAttribute('x',qEnd[0]-25);
+        find('rms-query-label').setAttribute('y',qEnd[1]+33);
+        const showBars=s>=2;
+        find('rms-energy-nums-1').style.opacity=showBars?'1':'.30';
+        find('rms-energy-nums-2').style.opacity=showBars?'1':'.30';
+        for(let i=0;i<2;i++){
+          const id=i+1, vals=showBars?energy[i]:[50,50];
+          energyWidths(find('rms-energy-'+id+'a'), find('rms-energy-'+id+'b'),vals);
+          find('rms-energy-nums-'+id).textContent=showBars ? `e₁: ${energy[i][0].toFixed(2)}% · e₂: ${energy[i][1].toFixed(2)}%`:'Reveal at step 3';
+        }
+        if(s===0){
+          setStatus('Two different directions','Both keys have length √1.01 ≈ 1.005, but one points mostly right, and the other mostly up.');
+          find('rms-two-math').textContent='k₁·k₂ = 1(−0.1) + 0.1(1) = 0';
+        } else if(s===1){
+          setStatus('Components reveal the write pattern','The key coordinates scale the columns of the outer-product memory update. Notice that k₂ contributes a negative amount to column 1.');
+          find('rms-two-math').textContent='M ← M + v₁k₁ᵀ + v₂k₂ᵀ';
+        } else if(s===2){
+          setStatus('Their energy points in different directions','Key 1 allocates about 99% of squared magnitude along e₁; key 2 allocates about 99% along e₂. RMS scaling preserves these proportions.');
+          find('rms-two-math').textContent='energy share = kᵢⱼ² / ‖kᵢ‖₂²';
+        } else if(s===3){
+          setStatus('One common target circle','In two dimensions, RMS(x) = 1 implies ‖x‖₂ = √2. The dashed purple ring is that target; it is not the unit circle.');
+          find('rms-two-math').textContent='RMS(k₁) = RMS(k₂) = √0.505 ≈ 0.7106';
+        } else if(s===4){
+          setStatus('Both keys move radially outward','Each key is divided by 0.7106: k̃₁ ≈ [1.407, 0.141] and k̃₂ ≈ [−0.141, 1.407]. Their dot product remains zero.');
+          find('rms-two-math').textContent='‖k̃₁‖₂ = ‖k̃₂‖₂ = √2';
+        } else {
+          setStatus('Query meets the same indexing direction','Normalise q = k₁ using RMSNorm too. Its score against k̃₁ becomes 2, while its score against the orthogonal k̃₂ stays 0.');
+          find('rms-two-math').textContent='q̃ᵀk̃₁ = 2   ·   q̃ᵀk̃₂ = 0';
+        }
+      }
+      Stepper(root, captions, render);
+    })();
+
+/* =========================================================
 
        DEMO 2: Superposition with orthogonal keys
 
@@ -1548,24 +1793,20 @@
 
         const V = [[1, 0], [0, 1]];
 
-        const K = [[1, .1], [-.1, 1]];
-
-        const Q = [1, .1];
+        // Same orthogonal directions as Example A, now RMS-normalised.
+        // For either raw key [1,.1] or [-.1,1], RMS = sqrt(1.01/2).
+        const gain = Math.sqrt(2 / 1.01);
+        const K = [[gain, .1 * gain], [-.1 * gain, gain]];
+        const Q = K[0].slice();
 
 
 
         const captions = [
-
-            '<b>Empty memory.</b> M is now a 2×2 matrix. Rows are genres, but the columns are no longer books. They are shared <i>feature channels</i> (Space, Castle) that every book writes into.',
-
-            '<b>Dune arrives.</b> Value v₁ = [Sci-Fi 1, Romance 0], key k₁ = [1, 0.1] (mostly Space, a hint of Castle). The key decides how the value is shared out: the Space column takes 100% of it, the Castle column 10%. Each cell receives v × key.',
-
-            '<b>Jane Eyre arrives.</b> v₂ = [0, 1], key k₂ = [−0.1, 1] (Castle &amp; Drama). Its shares are written <i>on top of</i> the same matrix. Note k₁ᵀk₂ = −0.1 + 0.1 = 0, so the two keys are orthogonal.',
-
-            '<b>Query</b> q = k₁ = [1, 0.1], "I\'m looking for Dune". The query reads each column in proportion to its own entries: the Space column at ×1, the Castle column at ×0.1.',
-
-            '<b>Add up each row.</b> Sci-Fi = 1 + 0.01 = <b>1.01</b>. Romance = −0.1 + 0.1 = <b>0</b>. Jane Eyre\'s contributions cancel exactly, so Mq = 1.01·v₁ + 0·v₂. With orthogonal keys there is zero crosstalk.'
-
+            '<b>Empty memory.</b> We are continuing Example A after RMSNorm. Each key has a fixed RMS of 1 and Euclidean length √2. The two feature columns are shared, rather than one column per book.',
+            '<b>Dune arrives.</b> The RMS-normalised key k̃₁ ≈ [1.407, 0.141] scales the Sci-Fi value across the two columns. These numbers are <i>signed write coefficients</i>, not probabilities; normalisation preserves the original direction.',
+            '<b>Jane Eyre arrives.</b> k̃₂ ≈ [−0.141, 1.407]. Its negative first component is preserved. The two directions remain orthogonal: k̃₁ᵀk̃₂ = 0. Its Romance value accumulates into the same memory matrix.',
+            '<b>Normalised query.</b> q̃ = k̃₁ ≈ [1.407, 0.141]. Reading each memory column multiplies its content by the corresponding query coordinate.',
+            '<b>Retrieve.</b> The Sci-Fi row becomes 2.00 while the Romance row becomes 0.00. Because ||k̃₁||² = 2 and k̃₂ᵀk̃₁ = 0, we get M̃q̃ = 2v₁ + 0v₂. Normalisation changes the scale, not the zero-crosstalk result.'
         ];
 
 
@@ -1602,15 +1843,15 @@
 
             // key / query row
 
-            setC(G.get(1, 0), w >= 0 ? 'key k' + sub(w + 1) + 'ᵀ<br>(share per column)' : (qry ? 'query qᵀ' : ''), 'lbl');
+            setC(G.get(1, 0), w >= 0 ? 'normalised k̃' + sub(w + 1) + 'ᵀ<br>(write coefficients)' : (qry ? 'normalised q̃ᵀ' : ''), 'lbl');
 
             for (let j = 0; j < 2; j++) {
 
                 const el = G.get(1, 3 + j);
 
-                if (w >= 0) setC(el, f(K[w][j]), 'key bar on', Math.abs(K[w][j]));
+                if (w >= 0) setC(el, f(K[w][j]), 'key bar on', Math.abs(K[w][j]) / 1.5);
 
-                else if (qry) setC(el, f(Q[j]), 'qry bar on', Math.abs(Q[j]));
+                else if (qry) setC(el, f(Q[j]), 'qry bar on', Math.abs(Q[j]) / 1.5);
 
                 else setC(el, '', 'blank');
 
@@ -1642,7 +1883,7 @@
 
             // output
 
-            setC(G.get(0, 6), res ? '<b>Mq</b>' : '', 'hdr');
+            setC(G.get(0, 6), res ? '<b>M̃q̃</b>' : '', 'hdr');
 
             for (let g = 0; g < 2; g++) {
 
@@ -1852,70 +2093,47 @@
     })();
 
 
-    /* Normalisation walkthrough: same numeric vectors as Example C. */
+
+    /* Separate score normalisation from key/query vector normalisation. */
     (function () {
-      const root = document.getElementById('demo-normalisation');
-      const svg = document.getElementById('norm-live-svg');
-      const keys = [[1.4,1.0],[1.2,0.7],[0.2,1.0]];
-      const query = [0.2,1.0];
-      const colors = ['#4c9be8','#e5736f','#8b5cf6'];
-      const norm = v => Math.hypot(v[0],v[1]);
-      const unit = v => v.map(x => x/norm(v));
-      const dot = (a,b) => a[0]*b[0]+a[1]*b[1];
-      const raw = keys.map(k => dot(query,k));
-      const cos = keys.map(k => dot(unit(query),unit(k)));
-      const captions = [
-        '<b>Memory writes.</b> Three values have been stored using their keys. The first two keys are long and point into somewhat similar directions; the third key belongs to the memory we want.',
-        '<b>Ask for Book 3.</b> The green query has the same direction as the purple key. Geometrically, that should be the cleanest possible match.',
-        '<b>Raw dot products.</b> The long blue key wins with 1.28, despite matching the query direction less well than the purple key. Raw dot products mix length and angle.',
-        '<b>Normalise.</b> Divide each key and the query by its own norm. The tips contract or expand to meet the purple unit circle, without turning: direction is preserved.',
-        '<b>Now cosine similarity.</b> The purple key receives 1.00 and correctly wins. But the other keys still have substantial scores, around 0.73 and 0.66. Normalisation removed length bias, not crosstalk.',
-        '<b>The remaining problem.</b> When several directions are even closer together, scores such as 1.00, 0.97, and 0.94 are nearly tied. We need a way to sharpen the distinction before taking a weighted sum.'
+      const root=document.getElementById('demo-score-norm');
+      if(!root)return;
+      const s=[2,1,.5], names=['Book 1','Book 2','Book 3'];
+      const col=['#4c9be8','#e5736f','#8b5cf6'];
+      const v=[[1,0],[0,1],[.5,.5]];
+      const z=s.reduce((a,b)=>a+b,0), w=s.map(x=>x/z);
+      const sum=(a)=>v[0].map((_,j)=>a.reduce((acc,t,i)=>acc+t*v[i][j],0));
+      const raw=sum(s),normal=sum(w);
+      const fmt=x=>x.toFixed(3);
+      const caps=[
+        '<b>1 / 5 — Raw scores.</b> Suppose three stored values receive scores 2.0, 1.0 and 0.5. In ordinary outer-product retrieval, all three scores directly multiply their corresponding values.',
+        '<b>2 / 5 — Add their contributions.</b> The raw retrieval is 2v₁ + 1v₂ + 0.5v₃. These are coefficients, not percentages; they sum to 3.5 rather than 1.',
+        '<b>3 / 5 — Find the normalising denominator.</b> Add the nonnegative scores: Z = 2 + 1 + 0.5 = 3.5. The next step will express each score as a fraction of that total.',
+        '<b>4 / 5 — Turn scores into shares.</b> Divide each score by Z: the weights become 57.1%, 28.6%, 14.3%. Now the shares sum to 100%.',
+        '<b>5 / 5 — A weighted average, not a cleaner match.</b> The output is now 0.571v₁ + 0.286v₂ + 0.143v₃. Only the common scale changed; the ratios between memories remain identical. Overlap can still cause noise.'
       ];
-      let phase = 0;
-      const origin=[62,267], scale=104;
-      const coord = v => [origin[0]+v[0]*scale,origin[1]-v[1]*scale];
-      const esc = n=>Number(n).toFixed(2);
-      function draw(step) {
-        phase=step;
+      function render(step){
         const normalized=step>=3;
-        const showQuery=step>=1;
-        const scores=normalized?cos:raw;
-        const wkeys=normalized?keys.map(unit):keys;
-        const q=normalized?unit(query):query;
-        let html='<defs>';
-        colors.concat(['#2da44e']).forEach((c,i)=>html+=`<marker id="norm-marker-${i}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="${c}"/></marker>`);
-        html+='</defs><g stroke="#edf0f4" stroke-width="1">';
-        for(let x=22;x<=338;x+=26) html+=`<line x1="${x}" y1="22" x2="${x}" y2="292"/>`;
-        for(let y=33;y<=292;y+=26) html+=`<line x1="22" y1="${y}" x2="338" y2="${y}"/>`;
-        html+='</g><line x1="22" y1="267" x2="339" y2="267" stroke="#bbc3cd" stroke-width="1.5"/><line x1="62" y1="292" x2="62" y2="21" stroke="#bbc3cd" stroke-width="1.5"/>';
-        html+=`<circle cx="62" cy="267" r="104" fill="none" stroke="#8b5cf6" stroke-dasharray="5,4" stroke-width="1.6" opacity="${step>=3?1:.35}"/>`;
-        html+='<text x="172" y="258" font-size="11" fill="#8b5cf6" font-family="sans-serif">unit circle: radius 1</text>';
-        if(normalized) keys.forEach((k,i)=>{const end=coord(k);html+=`<line x1="62" y1="267" x2="${end[0]}" y2="${end[1]}" stroke="${colors[i]}" stroke-width="2" opacity=".16" stroke-dasharray="3 5"/>`;});
-        wkeys.forEach((k,i)=>{
-          const end=coord(k);
-          html+=`<line x1="62" y1="267" x2="${end[0]}" y2="${end[1]}" stroke="${colors[i]}" stroke-width="3.2" marker-end="url(#norm-marker-${i})" style="transition:all .4s"/>`;
-          const dx=i===2?10:5,dy=i===0?-9:i===1?17:-7;
-          html+=`<text x="${end[0]+dx}" y="${end[1]+dy}" font-size="13" fill="${colors[i]}" font-family="sans-serif">${normalized?'k̂':'k'}${['₁','₂','₃'][i]}</text>`;
-        });
-        if(showQuery){const end=coord(q); const shrunk=[62+(end[0]-62)*.75,267+(end[1]-267)*.75];
-          html+=`<line x1="62" y1="267" x2="${shrunk[0]}" y2="${shrunk[1]}" stroke="#2da44e" stroke-width="3" stroke-dasharray="6 4" marker-end="url(#norm-marker-3)"/>`;
-          html+=`<text x="${shrunk[0]-15}" y="${shrunk[1]+24}" fill="#2da44e" font-size="13" font-family="sans-serif">${normalized?'q̂':'q'}</text>`;
-        }
-        html+='<text x="326" y="282" font-size="11" fill="#818b96" font-family="sans-serif">x</text><text x="48" y="26" font-size="11" fill="#818b96" font-family="sans-serif">y</text>';
-        svg.innerHTML=html;
-        const scoreTitle=document.getElementById('norm-score-title');
-        scoreTitle.textContent=step<2?'Stored keys':step<3?'Raw dot-product scores':'Cosine similarity scores';
-        const rows=document.getElementById('norm-score-rows');
-        rows.innerHTML=(step<2?keys.map((k,i)=>`<div class="norm-score-line"><span>Key ${i+1}</span><span>‖k${i+1}‖ = ${esc(norm(k))}</span></div>`):scores.map((v,i)=>`<div class="norm-score-line"><span>Book ${i+1}</span><div class="norm-score-track"><div class="norm-score-fill" style="background:${colors[i]};width:${Math.min(100,v/(normalized?1:1.35)*100)}%"></div></div><b>${esc(v)}</b></div>`)).join('');
-        const verdict=document.getElementById('norm-verdict');
-        verdict.innerHTML=step<1?'The keys have different lengths.':step<2?'The query asks for <b>Book 3</b>, the purple direction.':step===2?'The wrong key leads: <b>Book 1 = 1.28</b> vs Book 3 = 1.04.':step===3?'Lengths are equalised; every tip now lies on the unit circle.':step===4?'The right key wins: <b>Book 3 = 1.00</b>, but other keys still contribute.':'The next challenge: near-ties need <b>greater contrast</b>, not further length correction.';
-        document.getElementById('norm-live-note').textContent=normalized?'Unit-normalised vectors change length but preserve direction. Cosine is bounded between −1 and 1.':'The dotted purple ring has radius 1. The longer blue key lies outside it.';
+        const current=normalized?w:s;
+        document.getElementById('score-w-heading').textContent=normalized?'Normalised retrieval weights':'Raw retrieval scores';
+        document.getElementById('score-w-bars').innerHTML=current.map((n,i)=>`<div class="score-w-bar"><span>${names[i]}</span><div class="score-w-track"><div class="score-w-fill" style="width:${(normalized?n*100:s[i]/2*100).toFixed(1)}%;background:${col[i]}"></div></div><b>${normalized?(n*100).toFixed(1)+'%':s[i].toFixed(1)}</b></div>`).join('');
+        const total=document.getElementById('score-w-total');
+        total.textContent=step>=2?(normalized?'Weight total = 1.000 = 100%':'Score total Z = 2.0 + 1.0 + 0.5 = 3.5'):'Weights not yet normalised (sum = 3.5)';
+        document.getElementById('score-w-equation').textContent=normalized?'wᵢ = sᵢ / Z;   Z = 3.5':'Mq = 2v₁ + 1v₂ + 0.5v₃';
+        document.getElementById('score-w-vector').textContent=normalized?`ȳ = [${fmt(normal[0])}, ${fmt(normal[1])}]ᵀ`:`Mq = [${fmt(raw[0])}, ${fmt(raw[1])}]ᵀ`;
+        const msg=[
+          'The score measures how strongly the query retrieves each stored value.',
+          'A weighted sum is already taking place — it just has no controlled total yet.',
+          'A single positive denominator will convert every score into a comparable relative share.',
+          'Now “57.1%” has a precise meaning: 57.1% of the total retrieval weight goes to Book 1.',
+          'Dividing by Z rescales the output, but cannot make a competing key quieter relative to the winner.'
+        ];
+        document.getElementById('score-w-insight').textContent=msg[step];
       }
-      Stepper(root,captions,draw);
+      Stepper(root,caps,render);
     })();
 
-    /* Preview: temperature-scaled softmax over nearby cosine scores. */
+    /* Preview: temperature-scaled softmax over nearby similarity scores. */
     (function () {
       const values=[1.00,.97,.94];
       const colors=['#8b5cf6','#4c9be8','#e5736f'];
