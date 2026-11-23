@@ -1,3 +1,10 @@
+This is exactly the kind of visual feedback that makes mathematical concepts click. To match the quality of Demo 3 (the crosstalk slider), I have built a **"No Crosstalk" visualizer** right after Example A. 
+
+It uses the exact same layout (Vector Space on the left, Score/Contribution bars on the right) so the reader can immediately compare the two. It shows the 90-degree orthogonal vectors, the perfect scores (1.01 vs 0), and proves visually that Book 2 contributes absolutely nothing to the final output.
+
+Here is the complete updated file. Copy and paste this into your `index.html`:
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -174,7 +181,7 @@
         @keyframes pop { from { transform: scale(.45); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .pop { animation: pop .5s ease backwards; }
 
-        /* crosstalk demo */
+        /* crosstalk demo & orthogonal demo shared layout */
         .d3 { display: flex; flex-wrap: wrap; gap: 1.2em; align-items: flex-start; }
         .d3-left { flex: 0 0 240px; text-align: center; margin: 0 auto; }
         .d3-right { flex: 1 1 320px; min-width: 300px; }
@@ -286,7 +293,63 @@
         <p>We retrieve perfectly clean Sci-Fi, with absolutely zero noise from Book 2. Superposition is powerful if we can keep the keys orthogonal.</p>
     </div>
 
-    <!-- DEMO 2: SUPERPOSITION -->
+    <!-- NEW DEMO: ORTHOGONAL NO CROSSTALK -->
+    <div class="demo" id="demo-ortho">
+        <div class="demo-title">Visual: perfect recall with orthogonal keys</div>
+        <div class="demo-stage">
+            <div class="d3">
+                <div class="d3-left">
+                    <div class="ptitle">Key space</div>
+                    <svg viewBox="0 0 250 235" width="100%" style="max-width:250px">
+                        <defs>
+                            <marker id="d4-ah-b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#4c9be8"/></marker>
+                            <marker id="d4-ah-r" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#e5736f"/></marker>
+                        </defs>
+                        <line x1="34" y1="205" x2="242" y2="205" stroke="#bbb"/>
+                        <line x1="34" y1="205" x2="34" y2="12" stroke="#bbb"/>
+                        <text x="242" y="226" text-anchor="end" font-size="11" fill="#888" font-family="sans-serif">feature 1 →</text>
+                        <text x="14" y="200" font-size="11" fill="#888" font-family="sans-serif" transform="rotate(-90 14,200)">feature 2 →</text>
+                        
+                        <!-- Query -->
+                        <line x1="34" y1="205" x2="204" y2="188" stroke="#2da44e" stroke-width="8" stroke-opacity=".25" stroke-linecap="round"/>
+                        
+                        <!-- K1 -->
+                        <line x1="34" y1="205" x2="204" y2="188" stroke="#4c9be8" stroke-width="2.5" marker-end="url(#d4-ah-b)"/>
+                        <text x="180" y="210" font-size="12" fill="#4c9be8" font-family="sans-serif">k₁ = q</text>
+                        
+                        <!-- K2 -->
+                        <line x1="34" y1="205" x2="18" y2="35" stroke="#e5736f" stroke-width="2.5" marker-end="url(#d4-ah-r)"/>
+                        <text x="28" y="40" font-size="12" fill="#e5736f" font-family="sans-serif">k₂</text>
+                        
+                        <text x="246" y="12" text-anchor="end" font-size="11.5" fill="#555" font-family="sans-serif">cos θ = 0.00</text>
+                        
+                        <!-- Right angle marker -->
+                        <path d="M 42 190 L 49 188 L 51 195" fill="none" stroke="#555" stroke-width="1.2" stroke-dasharray="2,2"/>
+                    </svg>
+                </div>
+                <div class="d3-right">
+                    <div class="legend"><i class="b1"></i>Book 1: Sci-Fi 1.0 · Romance 0 <i class="b2"></i>Book 2: Sci-Fi 0 · Romance 1.0</div>
+                    <div class="panel show">
+                        <div class="ptitle">① Score of each book (qᵀkᵢ)</div>
+                        <div class="brow"><span class="blab">Book 1</span><div class="btrack"><div class="bseg b1" style="width: 84%;">1.01</div></div><span class="bval" style="color: #2da44e; font-weight: bold;">1.01 ★</span></div>
+                        <div class="brow"><span class="blab">Book 2</span><div class="btrack"><div class="bseg b2" style="width: 0%;"></div></div><span class="bval">0</span></div>
+                    </div>
+                    <div class="panel show">
+                        <div class="ptitle">② What each book adds to the output (score × value)</div>
+                        <div class="brow"><span class="blab">Sci-Fi</span><div class="btrack"><div class="bseg b1" style="width: 84%;">1.01</div><div class="bseg b2" style="width: 0%;"></div></div><span class="bval">1.01</span></div>
+                        <div class="brow"><span class="blab">Romance</span><div class="btrack"><div class="bseg b1" style="width: 0%;"></div><div class="bseg b2" style="width: 0%;"></div></div><span class="bval">0</span></div>
+                    </div>
+                    <div class="panel show">
+                        <div class="verdict ok">
+                            Mq reads as <b>pure Sci-Fi</b> (1.01 vs 0). Book 2 contributes exactly <b>zero</b> to the output. No crosstalk.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DEMO 2: SUPERPOSITION ANIMATION -->
     <div class="demo" id="demo2">
         <div class="demo-title">Animation: superposition &mdash; a key spreads its value over the columns</div>
         <div class="demo-stage"></div>
@@ -756,3 +819,4 @@
 
 </body>
 </html>
+```
