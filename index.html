@@ -1,10 +1,82 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Bala's Homepage</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bala's Notes on NPU & AI Math</title>
+    
+    <!-- MathJax for rendering equations -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        /* This is a clean, academic style */
+        body {
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px; /* Keeps lines readable, like a paper */
+            margin: 0 auto;
+            padding: 2rem 1rem;
+            background-color: #fdfdfd;
+        }
+        h1, h2, h3 {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            color: #111;
+            border-bottom: 1px solid #eaeaea;
+            padding-bottom: 0.3em;
+            margin-top: 1.5em;
+        }
+        h1 { font-size: 2.2rem; }
+        a { color: #0366d6; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        code {
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            background-color: #f6f8fa;
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+            font-size: 85%;
+        }
+        .math-block {
+            background-color: #f6f8fa;
+            padding: 1em;
+            border-radius: 5px;
+            overflow-x: auto;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
-    <h1>Hello World!</h1>
-    <p>Welcome to my new GitHub Pages site.</p>
+
+    <h1>Architecting the Future: NPUs & AI Math</h1>
+    <p>Welcome. I am an NPU architect exploring the intersection of hardware design, AI model architectures, and the underlying mathematics that make it all work.</p>
+
+    <h2>Recent Thoughts</h2>
+    
+    <h3>The Attention Mechanism</h3>
+    <p>At the heart of modern transformers lies the scaled dot-product attention. It can be expressed as:</p>
+    
+    <div class="math-block">
+        \[
+        \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V
+        \]
+    </div>
+
+    <p>Where \(Q\) is the query matrix, \(K\) is the key matrix, and \(V\) is the value matrix. The \(d_k\) term is the dimension of the keys, acting as a scaling factor to prevent the dot products from growing too large.</p>
+
+    <h2>Hardware Implications</h2>
+    <p>When mapping this to an NPU, the matrix multiplication \(QK^T\) requires significant MAC (Multiply-Accumulate) throughput. For a standard block size, we might write a naive python simulation like this:</p>
+
+    <pre><code>def attention(q, k, v):
+    # Matmul Q * K^T
+    matmul_qk = np.dot(q, k.T) 
+    # Scale
+    scaled_attention_logits = matmul_qk / np.sqrt(k.shape[-1])
+    # Softmax
+    attention_weights = tf.nn.softmax(scaled_attention_logits, axis=-1)
+    # Matmul with V
+    output = np.dot(attention_weights, v)
+    return output</code></pre>
+
 </body>
 </html>
