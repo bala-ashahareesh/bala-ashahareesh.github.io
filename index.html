@@ -88,8 +88,30 @@
     
     <p>When building intuition for understanding Attention mechanism, I like to start from the concept of considering the memory state as an outer product accumulate process where the keys act as an index that decides how the values being updated can be distributed among the columns.</p>
 
-    <!-- ADDED BY AI: Equations and Example for Outer Product Accumulate -->
-    <p>Mathematically, if we have a value vector \(v \in \mathbb{R}^m\) and a key vector \(k \in \mathbb{R}^n\), the memory update is an outer product \(v k^T\) (an \(m \times n\) matrix) accumulated into the memory state \(M\):</p>
+    <p>Ideally, when we think of "memory" as accumulated context or piece of information that is encoded in our d dimensional space as a vector, then it makes sense to think of it as a library that holds this info. To have no interference whatsoever, we would have the keys acting as an index that points to the location of the info (which we would call value). Since the keys are encoded as one-hot encoding, the position of the 1 is the position of the required value in the memory. Then the query would just be just be mathing that position.</p>
+
+    <div class="math-block">
+        \[
+        \text{Match}(q_i, k_j) = q_i^T k_j = \delta_{ij} = 
+        \begin{cases} 
+        1 & \text{if } i = j \\ 
+        0 & \text{if } i \neq j 
+        \end{cases}
+        \]
+    </div>
+
+    <div class="example-box">
+        <div class="example-title">Example: One-Hot Keys (The Library)</div>
+        <p>Suppose our memory has 3 slots. The keys are just the standard basis vectors (one-hot encodings):</p>
+        <p>\(k_1 = [1, 0, 0]^T\), \(k_2 = [0, 1, 0]^T\), \(k_3 = [0, 0, 1]^T\)</p>
+        <p>If we want to retrieve the value at the second slot, our query is simply \(q = [0, 1, 0]^T\). Taking the dot product with the keys gives us:</p>
+        <p>\(q^T k_1 = 0\), \(q^T k_2 = 1\), \(q^T k_3 = 0\).</p>
+        <p>This perfectly selects the second value with a weight of 1, and zeroes out the rest.</p>
+    </div>
+
+    <p>As easy and intuitive as it sounds, the "library" analogy comes with the same limitation mathematically. If every book needs a new slot, every piece of info or value would also need a new slot. Imagine every piece of context updating the column count by 1. Therein lies the need for superposition. This allows us to take advantage of the d dimensional space more.</p>
+
+    <p>Mathematically, if we have a value vector \(v \in \mathbb{R}^m\) and a distributed key vector \(k \in \mathbb{R}^n\), the memory update is an outer product \(v k^T\) (an \(m \times n\) matrix) accumulated into the memory state \(M\):</p>
     
     <div class="math-block">
         \[
@@ -116,7 +138,6 @@
 
     <p>Any query then matches with the key via inner product to give a score that decides how desired a particular value is.</p>
 
-    <!-- ADDED BY AI: Example of Query-Key matching -->
     <div class="example-box">
         <div class="example-title">Example: Query-Key Inner Product</div>
         <p>Let a query vector be \(q = \begin{bmatrix} 1 \\ 0.5 \end{bmatrix}\). We calculate the score by taking the inner product with the keys.</p>
@@ -127,12 +148,10 @@
 
     <p>This gives us a beautiful associativity in the memory update.</p>
 
-    <!-- ADDED BY AI: Ideal one-hot behavior -->
     <p>If we retrieve from our memory state \(M\) using query \(q\), we get \(M q = \sum v_i (k_i^T q) = \sum v_i \cdot \text{score}_i\). Ideally, we want our scoring mechanism to behave as a selector: the desired value should have a weight of \(1\), and all undesired values should have a weight of \(0\) (a one-hot vector).</p>
 
     <p>Unfortunately, the ensuing issue here is that even if the score is high for the desired value, the sum of undesired scores can still make the result noisy. This can be seen if we view it as an affine equation.</p>
 
-    <!-- ADDED BY AI: Graph illustrating the affine equation noise -->
     <div class="graph-container">
         <div class="example-title">The Affine Noise Problem</div>
         <p style="font-size: 0.9em; text-align: left;">
