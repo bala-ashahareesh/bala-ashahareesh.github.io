@@ -425,6 +425,32 @@
 
         .slider-row input { width: 100%; margin: 4px 0 0; }
 
+        /* normalisation section */
+        .norm-grid { display: flex; flex-wrap: wrap; gap: 1em; align-items: stretch; }
+        .norm-card { flex: 1 1 320px; min-width: 300px; border: 1px solid #eaeaea; border-radius: 8px; background: #fff; padding: 0.85em; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+        .norm-card h3 { margin: 0 0 0.5em; font-size: 1rem; border: none; padding: 0; color: #222; }
+        .norm-card p { margin: 0.55em 0; font-size: 0.93em; color: #445; }
+        .norm-pill { display: inline-block; padding: 0.18em 0.5em; border-radius: 999px; font-size: 12px; font-family: "SFMono-Regular", Consolas, Menlo, monospace; background: #f6f8fa; color: #444; margin-right: 6px; margin-bottom: 6px; }
+        .norm-pills { margin-top: 0.35em; }
+        .norm-takeaway { margin-top: 1em; padding: 0.8em 0.9em; border-left: 4px solid #0366d6; background: #f6f8fa; border-radius: 6px; font-size: 0.95em; color: #2c3e50; }
+        .norm-formula { background: #f6f8fa; border-radius: 6px; padding: 0.7em 0.9em; margin: 1em 0; font-size: 0.95em; }
+
+
+        .norm-live-layout { display:flex; flex-wrap:wrap; gap:16px; align-items:flex-start; }
+        .norm-figure { flex: 0 1 365px; max-width:100%; margin:0 auto; }
+        #norm-live-svg { display:block; width:100%; max-width:360px; border-radius:8px; border:1px solid #e8ebef; background:white; }
+        .norm-live-right { flex:1 1 250px; min-width:235px; padding-top:12px; }
+        .norm-live-verdict { padding:11px 13px; background:#f7f9fb; border-left:3px solid #4c9be8; border-radius:5px; font-size:13.5px; line-height:1.55; margin-top:12px; }
+        .norm-live-note { color:#555; font-size:12px; margin-top:13px; line-height:1.6; }
+        .norm-score-line { display:grid; grid-template-columns:54px 1fr 52px; gap:8px; align-items:center; margin:11px 0; font-size:12px; }
+        .norm-score-track { background:#eef1f4; height:20px; border-radius:4px; overflow:hidden; }
+        .norm-score-fill { height:100%; transition:width .5s ease; }
+        .norm-score-line b { font-family:Consolas,monospace; font-weight:500; text-align:right; }
+        .norm-compare { display:flex; flex-wrap:wrap; gap:16px; }
+        .norm-column { flex:1 1 265px; min-width:245px; }
+        .norm-temp-control { margin-top:1.25em; background:#f7f9fb; padding:12px 15px; border-radius:6px; }
+        .norm-temp-hints { display:flex; justify-content:space-between; font-size:11px; color:#66707a; }
+
     </style>
 
 </head>
@@ -847,6 +873,105 @@
 
     </div>
 
+
+
+
+
+    <h2>The Need for Normalisation</h2>
+
+    <p>There is another failure mode hiding inside the raw dot product. It does not just care about <em>direction</em>; it also cares about <em>length</em>. This means that if several similar memory updates keep writing along a related direction, the corresponding key vectors can become very large. Later, when we query for something else, those large vectors can still produce big scores simply because they are long, not because they are the best match.</p>
+
+    <p>Intuitively: a cluster of similar memories can become <em>too loud</em>. Even if the query points more cleanly toward the book we actually want, the long noisy keys may still shout over it.</p>
+
+    <div class="example-box">
+        <div class="example-title">Example C: Why raw magnitude is dangerous</div>
+        <p>Suppose Book 1 and Book 2 are a noisy Sci-Fi cluster whose keys have grown large because they keep updating nearby directions in memory:</p>
+        <p><strong>Book 1:</strong> \(k_1 = [1.4, 1.0]^T\), \(v_1\) is mostly Sci-Fi.<br>
+        <strong>Book 2:</strong> \(k_2 = [1.2, 0.7]^T\), \(v_2\) is also mostly Sci-Fi.<br>
+        <strong>Book 3:</strong> \(k_3 = [0.2, 1.0]^T\), \(v_3\) is Romance-heavy.</p>
+        <p>Now we query for Book 3, so \(q = k_3 = [0.2,1.0]^T\). Book 3 is the best directional match, but its key is much shorter. Raw dot products therefore reward length as well as alignment:</p>
+        <div class="math-block" style="margin: 0.7em 0 0.4em;">
+            \[
+            q^T k_1 = 1.28,
+            \qquad
+            q^T k_2 = 0.94,
+            \qquad
+            q^T k_3 = 1.04.
+            \]
+        </div>
+        <p>So the wrong book, Book 1, gets the highest score simply because its key is longer. The retrieval is being biased by magnitude.</p>
+    </div>
+
+
+    <!-- Interactive walkthrough: data and formulas are kept in the JS below. -->
+    <div class="demo" id="demo-normalisation">
+      <div class="demo-title">Animation: loud keys → unit vectors → the remaining ambiguity</div>
+      <div class="demo-stage">
+        <div class="norm-live-layout">
+          <div class="norm-figure">
+            <svg id="norm-live-svg" viewBox="0 0 360 330" role="img" aria-label="Cartesian graph of key vectors and the query, shrinking onto the unit circle"></svg>
+            <div class="basis-explainer">Faint gray lattice = Cartesian coordinates · purple ring = unit norm · green dashed vector = query</div>
+          </div>
+          <div class="norm-live-right">
+            <div class="ptitle" id="norm-score-title">Query scores</div>
+            <div id="norm-score-rows"></div>
+            <div class="norm-live-verdict" id="norm-verdict"></div>
+            <div class="norm-live-note" id="norm-live-note"></div>
+          </div>
+        </div>
+      </div>
+      <div class="demo-caption"></div>
+      <div class="demo-controls"></div>
+    </div>
+
+    <div class="norm-formula">
+      Divide each nonzero vector by its Euclidean norm:
+      \[
+      \hat{k}_i=\frac{k_i}{\|k_i\|_2},\qquad
+      \hat q=\frac{q}{\|q\|_2},\qquad
+      \hat q^T\hat k_i=\cos\theta_i.
+      \]
+      The \(\sqrt{2}\) reference is correct for \([1,1]^T\): its length is \(\sqrt{1^2+1^2}=\sqrt2\), but <strong>the normalised circle has radius 1</strong>, not \(\sqrt2\). Normalisation maps \([1,1]^T\) to \([1/\sqrt2,1/\sqrt2]^T\). The demo uses the same unit circle for all normalised keys.
+    </div>
+
+    <div class="norm-takeaway"><strong>What normalisation accomplishes:</strong> when we compare unit-normalised keys and queries, long keys no longer win simply by being long. But a cosine score by itself is still a soft vote, not a selector, and the weights are not yet a probability distribution.</div>
+
+    <h2>The Need to Differentiate Nearby Scores</h2>
+
+    <!-- EDITABLE EXPLANATION START: revise these paragraphs in your own voice. -->
+    <div class="example-box" id="editable-softmax-transition">
+      <div class="example-title">Draft explanation — refine this in your own words</div>
+      <p>We have solved one problem, but the library still has a subtle issue. Imagine asking for a very specific book while several others discuss almost the same topic. Normalisation has made all their thematic fingerprints equally long. That prevents a very large vector from winning just because of its magnitude, but it cannot force two similar directions to become far apart.</p>
+      <p>For example, our query might score three books at <strong>1.00, 0.97, and 0.94</strong>. The first is a perfect directional match, yet the other two are almost as convincing. If we feed these cosine scores straight into a weighted sum, the distractors retain nearly the same influence as the memory we actually asked for. The ranking is correct, but the retrieval is still blurry.</p>
+      <p>What we need next is not another change of coordinates. We need a way to <strong>amplify relative score differences</strong>: reward the slightly better match disproportionately, while keeping the weaker matches present but quieter. We also want nonnegative weights that sum to one, so that the total amount of attention stays controlled.</p>
+      <p>That motivates a new scoring rule: exponentiate the scores, and divide by their total. The exponential makes a score gap count multiplicatively; the denominator turns the results into a distribution. We arrive at <strong>softmax</strong> not because it is a magical lookup function, but because we want a tunable, smooth competition among memories.</p>
+      <p><em>Bridge to the next section:</em> a smooth competition is not yet a perfect one-hot lookup. We can make it sharper, but the choice of sharpness matters: a very sharp distribution can be decisive and brittle, while a soft one can preserve useful ambiguity.</p>
+    </div>
+    <!-- EDITABLE EXPLANATION END -->
+
+    <div class="math-block">
+      \[
+      s_i=\hat q^T\hat k_i,\qquad
+      w_i(\tau)=\frac{e^{s_i/\tau}}{\sum_j e^{s_j/\tau}},\quad \tau>0.
+      \]
+      <span style="font-size:.9em">Here \(\tau\) is the temperature. Smaller \(\tau\) produces sharper competition; larger \(\tau\) keeps the weights more even.</span>
+    </div>
+
+    <div class="demo" id="demo-softmax-preview">
+      <div class="demo-title">Interactive preview: why nearby scores need differentiation</div>
+      <p style="font-size:.93em;color:#4b5563">Three unit-vector cosine scores: <strong>1.00 · 0.97 · 0.94</strong>. The left bars are the original scores, and the right bars show the softmax weights. Drag the temperature to see how a small score gap becomes a larger or smaller difference in influence.</p>
+      <div class="norm-compare">
+        <div class="norm-column"><div class="ptitle">Cosine similarity (not probabilities)</div><div id="cosine-bar-list"></div></div>
+        <div class="norm-column"><div class="ptitle">Softmax attention weights (sum = 100%)</div><div id="softmax-bar-list"></div></div>
+      </div>
+      <div class="norm-temp-control">
+        <label for="softmax-temperature"><strong>Temperature τ:</strong> <output id="softmax-temp-value">0.10</output></label>
+        <input id="softmax-temperature" type="range" min="0.02" max="1" step="0.01" value="0.10" style="width:100%" />
+        <div class="norm-temp-hints"><span>Lower → sharper</span><span>Higher → more even</span></div>
+      </div>
+      <div class="norm-live-verdict" id="softmax-summary" aria-live="polite"></div>
+      <p class="basis-explainer">This preview applies softmax to cosine scores as a teaching example. Standard transformer attention generally uses scaled query–key dot products, not necessarily L2-normalised keys and queries. Softmax sharpens and normalises <em>weights</em>; L2 normalisation removes vector-magnitude effects. They solve different problems.</p>
+    </div>
 
 
     <script>
@@ -1492,6 +1617,82 @@
         });
 
         Stepper(root, captions, render);
+    })();
+
+
+    /* Normalisation walkthrough: same numeric vectors as Example C. */
+    (function () {
+      const root = document.getElementById('demo-normalisation');
+      const svg = document.getElementById('norm-live-svg');
+      const keys = [[1.4,1.0],[1.2,0.7],[0.2,1.0]];
+      const query = [0.2,1.0];
+      const colors = ['#4c9be8','#e5736f','#8b5cf6'];
+      const norm = v => Math.hypot(v[0],v[1]);
+      const unit = v => v.map(x => x/norm(v));
+      const dot = (a,b) => a[0]*b[0]+a[1]*b[1];
+      const raw = keys.map(k => dot(query,k));
+      const cos = keys.map(k => dot(unit(query),unit(k)));
+      const captions = [
+        '<b>Memory writes.</b> Three values have been stored using their keys. The first two keys are long and point into somewhat similar directions; the third key belongs to the memory we want.',
+        '<b>Ask for Book 3.</b> The green query has the same direction as the purple key. Geometrically, that should be the cleanest possible match.',
+        '<b>Raw dot products.</b> The long blue key wins with 1.28, despite matching the query direction less well than the purple key. Raw dot products mix length and angle.',
+        '<b>Normalise.</b> Divide each key and the query by its own norm. The tips contract or expand to meet the purple unit circle, without turning: direction is preserved.',
+        '<b>Now cosine similarity.</b> The purple key receives 1.00 and correctly wins. But the other keys still have substantial scores, around 0.73 and 0.66. Normalisation removed length bias, not crosstalk.',
+        '<b>The remaining problem.</b> When several directions are even closer together, scores such as 1.00, 0.97, and 0.94 are nearly tied. We need a way to sharpen the distinction before taking a weighted sum.'
+      ];
+      let phase = 0;
+      const origin=[62,267], scale=104;
+      const coord = v => [origin[0]+v[0]*scale,origin[1]-v[1]*scale];
+      const esc = n=>Number(n).toFixed(2);
+      function draw(step) {
+        phase=step;
+        const normalized=step>=3;
+        const showQuery=step>=1;
+        const scores=normalized?cos:raw;
+        const wkeys=normalized?keys.map(unit):keys;
+        const q=normalized?unit(query):query;
+        let html='<defs>';
+        colors.concat(['#2da44e']).forEach((c,i)=>html+=`<marker id="norm-marker-${i}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="${c}"/></marker>`);
+        html+='</defs><g stroke="#edf0f4" stroke-width="1">';
+        for(let x=22;x<=338;x+=26) html+=`<line x1="${x}" y1="22" x2="${x}" y2="292"/>`;
+        for(let y=33;y<=292;y+=26) html+=`<line x1="22" y1="${y}" x2="338" y2="${y}"/>`;
+        html+='</g><line x1="22" y1="267" x2="339" y2="267" stroke="#bbc3cd" stroke-width="1.5"/><line x1="62" y1="292" x2="62" y2="21" stroke="#bbc3cd" stroke-width="1.5"/>';
+        html+=`<circle cx="62" cy="267" r="104" fill="none" stroke="#8b5cf6" stroke-dasharray="5,4" stroke-width="1.6" opacity="${step>=3?1:.35}"/>`;
+        html+='<text x="172" y="258" font-size="11" fill="#8b5cf6" font-family="sans-serif">unit circle: radius 1</text>';
+        if(normalized) keys.forEach((k,i)=>{const end=coord(k);html+=`<line x1="62" y1="267" x2="${end[0]}" y2="${end[1]}" stroke="${colors[i]}" stroke-width="2" opacity=".16" stroke-dasharray="3 5"/>`;});
+        wkeys.forEach((k,i)=>{
+          const end=coord(k);
+          html+=`<line x1="62" y1="267" x2="${end[0]}" y2="${end[1]}" stroke="${colors[i]}" stroke-width="3.2" marker-end="url(#norm-marker-${i})" style="transition:all .4s"/>`;
+          const dx=i===2?10:5,dy=i===0?-9:i===1?17:-7;
+          html+=`<text x="${end[0]+dx}" y="${end[1]+dy}" font-size="13" fill="${colors[i]}" font-family="sans-serif">${normalized?'k̂':'k'}${['₁','₂','₃'][i]}</text>`;
+        });
+        if(showQuery){const end=coord(q); const shrunk=[62+(end[0]-62)*.75,267+(end[1]-267)*.75];
+          html+=`<line x1="62" y1="267" x2="${shrunk[0]}" y2="${shrunk[1]}" stroke="#2da44e" stroke-width="3" stroke-dasharray="6 4" marker-end="url(#norm-marker-3)"/>`;
+          html+=`<text x="${shrunk[0]-15}" y="${shrunk[1]+24}" fill="#2da44e" font-size="13" font-family="sans-serif">${normalized?'q̂':'q'}</text>`;
+        }
+        html+='<text x="326" y="282" font-size="11" fill="#818b96" font-family="sans-serif">x</text><text x="48" y="26" font-size="11" fill="#818b96" font-family="sans-serif">y</text>';
+        svg.innerHTML=html;
+        const scoreTitle=document.getElementById('norm-score-title');
+        scoreTitle.textContent=step<2?'Stored keys':step<3?'Raw dot-product scores':'Cosine similarity scores';
+        const rows=document.getElementById('norm-score-rows');
+        rows.innerHTML=(step<2?keys.map((k,i)=>`<div class="norm-score-line"><span>Key ${i+1}</span><span>‖k${i+1}‖ = ${esc(norm(k))}</span></div>`):scores.map((v,i)=>`<div class="norm-score-line"><span>Book ${i+1}</span><div class="norm-score-track"><div class="norm-score-fill" style="background:${colors[i]};width:${Math.min(100,v/(normalized?1:1.35)*100)}%"></div></div><b>${esc(v)}</b></div>`)).join('');
+        const verdict=document.getElementById('norm-verdict');
+        verdict.innerHTML=step<1?'The keys have different lengths.':step<2?'The query asks for <b>Book 3</b>, the purple direction.':step===2?'The wrong key leads: <b>Book 1 = 1.28</b> vs Book 3 = 1.04.':step===3?'Lengths are equalised; every tip now lies on the unit circle.':step===4?'The right key wins: <b>Book 3 = 1.00</b>, but other keys still contribute.':'The next challenge: near-ties need <b>greater contrast</b>, not further length correction.';
+        document.getElementById('norm-live-note').textContent=normalized?'Unit-normalised vectors change length but preserve direction. Cosine is bounded between −1 and 1.':'The dotted purple ring has radius 1. The longer blue key lies outside it.';
+      }
+      Stepper(root,captions,draw);
+    })();
+
+    /* Preview: temperature-scaled softmax over nearby cosine scores. */
+    (function () {
+      const values=[1.00,.97,.94];
+      const colors=['#8b5cf6','#4c9be8','#e5736f'];
+      const slider=document.getElementById('softmax-temperature');
+      const a=document.getElementById('cosine-bar-list');
+      const b=document.getElementById('softmax-bar-list');
+      function bars(vals,percent){return vals.map((x,i)=>`<div class="norm-score-line"><span>Book ${i+1}</span><div class="norm-score-track"><div class="norm-score-fill" style="width:${(percent?x*100:x*100).toFixed(1)}%;background:${colors[i]}"></div></div><b>${percent?(x*100).toFixed(1)+'%':x.toFixed(2)}</b></div>`).join('');}
+      function render(){const tau=+slider.value;const exps=values.map(s=>Math.exp((s-Math.max(...values))/tau));const z=exps.reduce((x,y)=>x+y,0);const weights=exps.map(x=>x/z);a.innerHTML=bars(values,false);b.innerHTML=bars(weights,true);document.getElementById('softmax-temp-value').textContent=tau.toFixed(2);document.getElementById('softmax-summary').innerHTML=`At τ = <b>${tau.toFixed(2)}</b>, Book 1 receives <b>${(weights[0]*100).toFixed(1)}%</b> of the weight, compared with ${(weights[1]*100).toFixed(1)}% and ${(weights[2]*100).toFixed(1)}% for the nearby alternatives. The scores remain in the same order: softmax changes their <em>relative influence</em>, not their ranking.`;}
+      slider.addEventListener('input',render);render();
     })();
 
     </script>
