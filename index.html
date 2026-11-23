@@ -115,7 +115,7 @@
 
     <p>As hinted above, now is a good time to put the library analogy to rest. To think of your books as being distributed across different slots such that each slot corresponds to different parts of different books is probably where I would draw the line and say it is a futile exercise to carry the analogy further. Although while typing this out, we could in fact push this further if we rephrase the analogy from referring to single books and towards topics. Now a "slot" or value can be a genre or theme, so that a book can be distributed among them. When we have a key that tells us which book we want, it can be seen as a weighted sum of different values or genres.</p>
 
-    <p>In this analogy: the **Value (\(v\))** is the genre profile (e.g., how much Sci-Fi vs. Romance). The **Key (\(k\))** is the thematic fingerprint or index (e.g., "Space", "Castle"). The **Memory (\(M\))** is the accumulated library.</p>
+    <p>In this analogy: the **Value (\(v\))** is the genre profile (e.g., how much Sci-Fi vs. Romance). The **Key (\(k\))** is the thematic fingerprint or index (e.g., a mix of "Space" and "Castle"). The **Memory (\(M\))** is the accumulated library.</p>
 
     <p>Mathematically, if we have a value vector \(v \in \mathbb{R}^m\) and a distributed key vector \(k \in \mathbb{R}^n\), the memory update is an outer product \(v k^T\) (an \(m \times n\) matrix) accumulated into the memory state \(M\):</p>
     
@@ -126,31 +126,31 @@
     </div>
 
     <div class="example-box">
-        <div class="example-title">Example A: Perfect Retrieval (Orthogonal Keys)</div>
-        <p>Let's first look at the ideal scenario. Our values represent genres <strong>[Sci-Fi, Romance]</strong>.</p>
+        <div class="example-title">Example A: Ideal Superposition (Orthogonal Keys)</div>
+        <p>Let's look at the ideal scenario where superposition works perfectly. Our values represent genres <strong>[Sci-Fi, Romance]</strong>.</p>
         
-        <p><strong>Book 1</strong> is pure Sci-Fi: \(v_1 = \begin{bmatrix} 1 \\ 0 \end{bmatrix}\). Its key (thematic index) is \(k_1 = \begin{bmatrix} 1 \\ 1 \end{bmatrix}\).<br>
-        <strong>Book 2</strong> is pure Romance: \(v_2 = \begin{bmatrix} 0 \\ 1 \end{bmatrix}\). Its key is \(k_2 = \begin{bmatrix} 1 \\ -1 \end{bmatrix}\).</p>
+        <p><strong>Book 1</strong> is pure Sci-Fi: \(v_1 = \begin{bmatrix} 1 \\ 0 \end{bmatrix}\). Its thematic key is a mix of Space and Aliens: \(k_1 = \begin{bmatrix} 1 \\ 0.1 \end{bmatrix}\).<br>
+        <strong>Book 2</strong> is pure Romance: \(v_2 = \begin{bmatrix} 0 \\ 1 \end{bmatrix}\). Its key is a mix of Castle and Drama: \(k_2 = \begin{bmatrix} -0.1 \\ 1 \end{bmatrix}\).</p>
         
-        <p>Notice that the keys are orthogonal (\(k_1^T k_2 = 0\)). The memory state accumulates as:</p>
+        <p>Notice that the keys are distributed (not one-hot), but they are perfectly orthogonal (\(k_1^T k_2 = -0.1 + 0.1 = 0\)). The memory state accumulates as:</p>
         <div class="math-block" style="margin: 0.5em 0; padding: 0.5em; background: none; border: none;">
             \[
-            M = v_1 k_1^T + v_2 k_2^T = \begin{bmatrix} 1 & 1 \\ 0 & 0 \end{bmatrix} + \begin{bmatrix} 0 & 0 \\ 1 & -1 \end{bmatrix} = \begin{bmatrix} 1 & 1 \\ 1 & -1 \end{bmatrix}
+            M = v_1 k_1^T + v_2 k_2^T = \begin{bmatrix} 1 & 0.1 \\ 0 & 0 \end{bmatrix} + \begin{bmatrix} 0 & 0 \\ -0.1 & 1 \end{bmatrix} = \begin{bmatrix} 1 & 0.1 \\ -0.1 & 1 \end{bmatrix}
             \]
         </div>
         
-        <p>If our query is exactly \(q = k_1 = \begin{bmatrix} 1 \\ 1 \end{bmatrix}\) (we want Book 1), the retrieval is \(M q\):</p>
+        <p>If we query with \(q = \begin{bmatrix} 1 \\ 0.1 \end{bmatrix}\) (looking for Book 1), we get:</p>
         <div class="math-block" style="margin: 0.5em 0; padding: 0.5em; background: none; border: none;">
             \[
-            M q = \begin{bmatrix} 1 & 1 \\ 1 & -1 \end{bmatrix} \begin{bmatrix} 1 \\ 1 \end{bmatrix} = \begin{bmatrix} 2 \\ 0 \end{bmatrix} = 2 \times v_1 + 0 \times v_2
+            M q = \begin{bmatrix} 1 & 0.1 \\ -0.1 & 1 \end{bmatrix} \begin{bmatrix} 1 \\ 0.1 \end{bmatrix} = \begin{bmatrix} 1.01 \\ 0 \end{bmatrix} = 1.01 v_1 + 0 v_2
             \]
         </div>
-        <p>We retrieve exactly Book 1, with absolutely zero interference from Book 2. Superposition works perfectly when keys are orthogonal.</p>
+        <p>We retrieve perfectly clean Sci-Fi, with absolutely zero noise from Book 2. Superposition is powerful if we can keep the keys orthogonal.</p>
     </div>
 
     <div class="example-box">
-        <div class="example-title">Example B: The Noise Problem (Crosstalk)</div>
-        <p>In reality, thematic fingerprints overlap heavily. Let's use more realistic values:</p>
+        <div class="example-title">Example B: The Reality (Crosstalk & Noise)</div>
+        <p>In reality, thematic fingerprints overlap heavily. We cannot always keep the keys orthogonal. Let's use overlapping keys:</p>
         
         <p><strong>Book 1</strong> (Mostly Sci-Fi): \(v_1 = \begin{bmatrix} 0.8 \\ 0.2 \end{bmatrix}\). Key (Space + Aliens): \(k_1 = \begin{bmatrix} 1 \\ 0.5 \end{bmatrix}\).<br>
         <strong>Book 2</strong> (Mostly Romance): \(v_2 = \begin{bmatrix} 0.1 \\ 0.9 \end{bmatrix}\). Key (Space + Romance): \(k_2 = \begin{bmatrix} 0.5 \\ 1 \end{bmatrix}\).</p>
@@ -159,7 +159,7 @@
         <p>Any query then matches with the key via inner product to give a score that decides how desired a particular value is. Let's query with \(q = \begin{bmatrix} 1 \\ 0.5 \end{bmatrix}\) (looking for Book 1):</p>
         <p>Score for Book 1 (\(k_1\)): \(q^T k_1 = (1 \times 1) + (0.5 \times 0.5) = 1.25\)</p>
         <p>Score for Book 2 (\(k_2\)): \(q^T k_2 = (1 \times 0.5) + (0.5 \times 1) = 1.0\)</p>
-        <p>Because the scores are so close, the query "desires" Book 1 only slightly more than Book 2. When we retrieve \(M q = 1.25 v_1 + 1.0 v_2\), we get a heavy mixture of both genres.</p>
+        <p>Because the scores are so close, the query "desires" Book 1 only slightly more than Book 2. When we retrieve \(M q = 1.25 v_1 + 1.0 v_2\), we get a heavy mixture of both genres. The retrieval is noisy.</p>
     </div>
 
     <p>This gives us a beautiful associativity in the memory update.</p>
