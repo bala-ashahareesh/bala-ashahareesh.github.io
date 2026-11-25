@@ -537,6 +537,29 @@
         .score-w-vector { margin:15px 0; font:14px/1.65 Consolas,monospace; border-radius:7px; background:#f7f9fc; padding:13px; min-height:50px; }
         .score-w-insight { border-left:3px solid #4c9be8; border-radius:5px; background:#f6f8fb; font-size:13px; line-height:1.6; padding:12px; color:#354156; }
 
+
+        /* One-hot library: deliberately impossible matrix growth */
+        .library-growth { margin:1.65em 0 2.15em; padding:19px 20px 16px; background:#fff; border:1px solid #e1e6ed; border-radius:12px; box-shadow:0 7px 25px rgba(21,39,68,.045); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+        .library-growth-head { display:flex; justify-content:space-between; align-items:start; flex-wrap:wrap; gap:10px; margin-bottom:15px; }
+        .library-growth-head strong {display:block; font-size:15px; color:#223047;}
+        .library-growth-head span {display:block; font-size:12px; color:#718096; margin-top:3px;}
+        .library-growth-tag {font-size:11px; background:#f0f5ff; color:#315b9e; padding:5px 9px; border-radius:20px; white-space:nowrap;}
+        .library-growth-stats {display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:9px; margin-bottom:14px;}
+        .library-growth-stat {background:#f8fafc; border:1px solid #e9edf2; border-radius:8px; padding:10px 12px; min-width:0;}
+        .library-growth-stat small {display:block; font-size:10px; color:#788595; margin-bottom:2px;}
+        .library-growth-stat b {font:600 clamp(15px,2.9vw,23px)/1.3 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; color:#27364c; font-variant-numeric:tabular-nums;}
+        .library-growth-frame {border:1px solid #e6ebf1; background:linear-gradient(140deg,#fff,#fbfcff); border-radius:9px; overflow:hidden;}
+        .library-growth-frame canvas {display:block; width:100%;height:auto; aspect-ratio:780/220;}
+        .library-growth-floor {display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:space-between; font-size:11px; color:#7a8796; padding:9px 4px 3px;}
+        .library-growth-controls {display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin:16px 0 10px;}
+        .library-growth-controls input {flex:1 1 230px; accent-color:#2563eb; cursor:pointer;}
+        .library-growth-controls button {padding:7px 13px; background:#f5f8ff; color:#26528f; border:1px solid #ccd9ef; border-radius:7px; font:600 12px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; cursor:pointer;}
+        .library-growth-ticks {display:flex; justify-content:space-between; gap:4px; font:11px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; color:#697889; margin-top:-1px;}
+        .library-growth-ticks span {width:20%; text-align:center;}
+        .library-growth-message {background:#f7f9fd; border-left:3px solid #6386bf; color:#364458; border-radius:5px; padding:11px 13px; font-size:13px; line-height:1.55; min-height:40px; margin-top:13px;}
+        .library-growth-math {font:12px/1.5 Consolas,Menlo,monospace; color:#5f7085; margin:13px 2px 0; overflow-wrap:anywhere;}
+        @media (max-width:520px) {.library-growth{padding:12px}.library-growth-stats{gap:5px}.library-growth-stat{padding:8px}.library-growth-stat b{font-size:15px}.library-growth-ticks{font-size:9px}}
+
     </style>
 
 </head>
@@ -634,7 +657,7 @@
 
     <p>When building intuition for understanding the attention mechanism, I like to think of standard self-attention as a divergence from a more natural mathematical progression: starting with a classical outer-product memory accumulation mechanism and gradually arriving at linear attention.</p>
 
-    <p>I bring this up here because the softmax function represents an interesting junction in this journey. From this point, we can either follow the path towards standard softmax self-attention or continue exploring linear attention, eventually leading us towards more advanced architectures such as Gated Delta Networks and Kimi Linear Attention, and further explorations into recurrent state-space models like Mamba.</p>
+    <p>I bring this up here because the softmax function represents an interesting junction in this journey. It is at this point that we can either follow the path towards standard softmax self-attention or continue exploring linear attention, eventually leading us towards more advanced architectures such as Gated Delta Networks and Kimi Linear Attention, and further explorations into recurrent state-space models like Mamba.</p>
 
     <p>Rather than starting with attention as a fully formed mechanism, I want to understand how these ideas emerge from simpler mathematical principles, what limitations motivate each transformation, and why different architectures take different paths.</p>
 
@@ -703,6 +726,25 @@
     <p>As easy and intuitive as it sounds, the "library" analogy comes with the same limitation mathematically. If every book needs a new slot, every piece of info or value would also need a new slot. Imagine every piece of context updating the column count by 1. Therein lies the need for superposition. This allows us to take advantage of the d dimensional space more.</p>
 
 
+
+
+    <section class="library-growth" id="library-growth" aria-label="Interactive visualisation showing one-hot memory growing with the number of books">
+      <div class="library-growth-head">
+        <div><strong>What happens if every memory needs its own column?</strong><span>Same three genre features · increasingly many independent one-hot slots</span></div>
+        <div class="library-growth-tag">THE LIBRARY KEEPS GROWING</div>
+      </div>
+      <div class="library-growth-stats">
+        <div class="library-growth-stat"><small>Books / stored items</small><b id="library-count">3</b></div>
+        <div class="library-growth-stat"><small>Memory matrix dimensions</small><b id="library-shape">3 × 3</b></div>
+        <div class="library-growth-stat"><small>Scalar entries in M</small><b id="library-entries">9</b></div>
+      </div>
+      <div class="library-growth-frame"><canvas id="library-growth-canvas" width="780" height="220" role="img" aria-label="Three-row memory matrix which expands from three columns to thousands of columns"></canvas></div>
+      <div class="library-growth-floor"><span>Rows: Sci-Fi · Romance · Mystery (fixed)</span><span id="library-window">3 of 3 columns visible</span></div>
+      <div class="library-growth-controls"><button id="library-growth-play" type="button">▶ Grow the library</button><input id="library-growth-slider" type="range" min="0" max="4" step="1" value="0" aria-label="Number of one-hot memory slots"></div>
+      <div class="library-growth-ticks"><span>3</span><span>12</span><span>128</span><span>1,024</span><span>8,192</span></div>
+      <div class="library-growth-message" id="library-growth-message" aria-live="polite">Three books, three columns. Every stored value gets a perfectly isolated slot. So far, this is wonderfully simple.</div>
+      <div class="library-growth-math" id="library-growth-math">M ∈ ℝ^(3 × 3) — one distinct basis key for each of the 3 books.</div>
+    </section>
 
     <h2>Superposition</h2>
 
@@ -1145,6 +1187,89 @@
 
 
     <script>
+
+
+    /* Independent one-hot slots: illustrate the width cost before superposition. */
+    (function () {
+      const root=document.getElementById('library-growth');
+      if(!root)return;
+      const canvas=root.querySelector('#library-growth-canvas'),ctx=canvas.getContext('2d');
+      if(!ctx)return;
+      const slider=root.querySelector('#library-growth-slider');
+      const button=root.querySelector('#library-growth-play');
+      const counts=[3,12,128,1024,8192];
+      const names=['Dune','Emma','Gone Girl'];
+      const rowNames=['Sci-Fi','Romance','Mystery'];
+      const profiles=[[.9,.1,0],[.1,.8,.1],[0,.2,.8]];
+      const messages=[
+        'Three books, three columns. Each book has an independent one-hot key, so retrieving it is straightforward.',
+        'Twelve books means twelve independent columns. The values still have only three features, but the index has already expanded fourfold.',
+        'At 128 books, the matrix extends well beyond the viewport. Most of the dedicated slots are now off-screen.',
+        'At 1,024 books, the entire index would span 1,024 columns. Our little three-row matrix is turning into a very long strip.',
+        'At 8,192 books, we need 8,192 independent one-hot coordinates for perfect slot-by-slot indexing. Nothing clever has happened: we simply keep buying columns.'
+      ];
+      const f=new Intl.NumberFormat('en-US');
+      let timer=null,step=0;
+      function setText(id,s){root.querySelector('#'+id).textContent=s;}
+      function draw(i){
+        const n=counts[i],W=780,H=220;
+        ctx.clearRect(0,0,W,H);
+        ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+        ctx.font='600 12px system-ui, sans-serif';
+        const left=94,top=50,ch=40,gap=4,cw=35;
+        rowNames.forEach((name,r)=>{ctx.fillStyle='#5d6a7b';ctx.textAlign='right';ctx.fillText(name,left-12,top+r*(ch+gap)+25)});
+        ctx.textAlign='center';
+        const shown=n<=12?n:15;
+        const colX=j=>left+j*(cw+gap);
+        function drawCol(j,x,label){
+          ctx.fillStyle='#697789';ctx.font='10px system-ui, sans-serif';ctx.fillText(label,x+cw/2,top-13);
+          for(let r=0;r<3;r++){
+            const val=j<3?profiles[j][r]:0;
+            ctx.fillStyle=val>0?`rgba(58,122,205,${.1+.56*val})`:'#f4f6f9';
+            ctx.fillRect(x,top+r*(ch+gap),cw,ch);
+            ctx.strokeStyle='#e5eaf0';ctx.strokeRect(x+.5,top+r*(ch+gap)+.5,cw-1,ch-1);
+            if(j<3){ctx.fillStyle=val>.45?'#fff':'#536070';ctx.font='10px Consolas,monospace';ctx.fillText(val.toFixed(1),x+cw/2,top+r*(ch+gap)+25);}
+            else {ctx.fillStyle='#aab4c2';ctx.fillRect(x+7,top+r*(ch+gap)+ch/2-1,cw-14,2);}
+          }
+        }
+        if(n<=12){
+          for(let j=0;j<n;j++)drawCol(j,colX(j),names[j]&&n===3?String(j+1):String(j+1));
+          if(n===3){ctx.font='11px system-ui, sans-serif';names.forEach((name,j)=>{ctx.fillStyle='#53709a';ctx.fillText(name,colX(j)+cw/2,top+3*(ch+gap)+14);});}
+        } else {
+          for(let j=0;j<shown;j++)drawCol(j,colX(j),String(j+1));
+          const mid=left+shown*(cw+gap)+8;
+          ctx.fillStyle='#c1c9d5';ctx.font='bold 24px system-ui, sans-serif';ctx.fillText('⋯',mid+13,top+75);
+          const remainder=n-shown;
+          ctx.font='600 12px system-ui, sans-serif';ctx.fillStyle='#7c8695';ctx.fillText('+'+f.format(remainder)+' more',mid+27,top+113);
+          // stacking cards behind the viewport to suggest the off-screen tail
+          ctx.save();ctx.globalAlpha=.6;
+          for(let k=0;k<5;k++){ctx.strokeStyle='#d3dce9';ctx.fillStyle='#eef3fa';ctx.fillRect(710+k*6,62-k*4,31,125);ctx.strokeRect(710+k*6,62-k*4,31,125);}
+          ctx.restore();
+        }
+        ctx.textAlign='left';
+        ctx.fillStyle='#64748b';ctx.font='11px system-ui, sans-serif';
+        ctx.fillText('M — value components × one-hot memory slots',20,25);
+        ctx.fillStyle='#e6ebf1';ctx.fillRect(18,206,745,1);
+        ctx.fillStyle='#6c7a8a';ctx.font='11px system-ui, sans-serif';
+        ctx.fillText('Each new independent book requires a new column →',20,217);
+        setText('library-count',f.format(n));
+        setText('library-shape','3 × '+f.format(n));
+        setText('library-entries',f.format(3*n));
+        setText('library-window',n<=12?`${n} of ${n} columns shown`:`First ${shown} shown · ${f.format(n-shown)} offscreen`);
+        setText('library-growth-message',messages[i]);
+        setText('library-growth-math',`M ∈ ℝ^(3 × ${f.format(n)}) · key dimension = ${f.format(n)} · at 39 px/column the full matrix would span ${f.format(39*n)} px (illustrative on-screen width).`);
+      }
+      function go(next){step=Math.max(0,Math.min(counts.length-1,next));slider.value=String(step);draw(step);}
+      function stop(){if(timer!==null){clearInterval(timer);timer=null;}button.textContent='▶ Grow the library';}
+      slider.addEventListener('input',()=>{stop();go(+slider.value);});
+      button.addEventListener('click',()=>{
+        if(timer!==null){stop();return;}
+        if(step===counts.length-1)go(0);
+        button.textContent='⏸ Pause';
+        timer=setInterval(()=>{if(step<counts.length-1)go(step+1);else stop();},1600);
+      });
+      go(0);
+    })();
 
     /* Self-contained, drag-to-orbit 3D semantic vector plot (no external JS dependency). */
     (() => {
